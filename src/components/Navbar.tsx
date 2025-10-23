@@ -104,19 +104,19 @@ export default function Navbar() {
       color="transparent" 
       elevation={0} 
       sx={{ 
-        zIndex: 1202,
+        zIndex: 1000,
         overflow: 'visible',
         pointerEvents: 'auto',
-        backdropFilter: scrolled ? 'blur(20px)' : 'blur(8px)',
+        backdropFilter: scrolled ? 'blur(10px)' : 'blur(5px)',
         backgroundColor: scrolled 
-          ? (colorMode === 'dark' ? 'rgba(18, 18, 18, 0.9)' : 'rgba(255, 255, 255, 0.9)')
+          ? (colorMode === 'dark' ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.8)')
           : 'transparent',
         borderBottom: scrolled 
           ? `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
           : 'none',
         transition: 'all 0.3s ease',
         boxShadow: scrolled 
-          ? (colorMode === 'dark' ? '0 4px 20px rgba(0, 0, 0, 0.3)' : '0 4px 20px rgba(0, 0, 0, 0.1)')
+          ? (colorMode === 'dark' ? '0 2px 10px rgba(0, 0, 0, 0.2)' : '0 2px 10px rgba(0, 0, 0, 0.1)')
           : 'none'
       }}
     >
@@ -126,9 +126,9 @@ export default function Navbar() {
           dir={isRtl ? 'rtl' : 'ltr'}
           sx={{
             justifyContent: 'space-between',
-            gap: 2,
-            py: scrolled ? 0.5 : 1,
-            minHeight: { xs: 52, md: 64 },
+            gap: 1,
+            py: scrolled ? 0.25 : 0.5,
+            minHeight: { xs: 48, md: 56 },
             transition: 'padding 0.3s ease, min-height 0.3s ease'
           }}
         >
@@ -151,15 +151,15 @@ export default function Navbar() {
               <div style={{ position: 'relative' }}>
                 <Image 
                   src={logoSrc} 
-                  alt="Ø§Ù†Ø¬Ù…Ù† Ø¹Ù„Ù…ÛŒ Ù…Ù‡Ù†Ø¯Ø³ÛŒ Ú©Ø§Ù…Ù¾ÛŒÙˆØªØ±" 
-                  width={scrolled ? 120 : 144} 
-                  height={scrolled ? 80 : 96} 
+                  alt="انجمن علمی مهندسی کامپیوتر" 
+                  width={scrolled ? 100 : 120} 
+                  height={scrolled ? 60 : 80} 
                   style={{ 
                     width: 'auto',
                     transition: 'all 0.3s ease'
                   }} 
                   priority 
-                  sizes="(max-width: 600px) 72px, (max-width: 900px) 96px, 144px" 
+                  sizes="(max-width: 600px) 60px, (max-width: 900px) 80px, 120px" 
                   suppressHydrationWarning 
                 />
                 {isAdminPage && (
@@ -189,7 +189,7 @@ export default function Navbar() {
                   display: { xs: 'none', sm: 'block' },
                   fontFamily: locale === 'fa' ? 'var(--font-display-fa)' : 'var(--font-anime-en)',
                   fontWeight: 700,
-                  fontSize: scrolled ? '1.1rem' : '1.25rem',
+                  fontSize: scrolled ? '0.9rem' : '1rem',
                   transition: 'font-size 0.3s ease'
                 }}
               >
@@ -201,7 +201,7 @@ export default function Navbar() {
                 enableOnHover={false}
                 variant="h6"
                 sx={{ 
-                  fontSize: scrolled ? '0.7rem' : '0.8rem',
+                  fontSize: scrolled ? '0.6rem' : '0.7rem',
                   display: { xs: 'block', sm: 'none' },
                   lineHeight: 1.2,
                   fontFamily: locale === 'fa' ? 'var(--font-display-fa)' : 'var(--font-tech-en)',
@@ -229,9 +229,9 @@ export default function Navbar() {
                     sx={{ 
                       textTransform: 'none',
                       fontWeight: active ? 600 : 500,
-                      borderRadius: 2,
-                      px: 1.5,
-                      py: 0.75,
+                      borderRadius: 1.5,
+                      px: 1,
+                      py: 0.5,
                       position: 'relative',
                       overflow: 'hidden',
                       transition: 'all 0.3s ease',
