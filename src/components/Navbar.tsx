@@ -104,7 +104,7 @@ export default function Navbar() {
       color="transparent" 
       elevation={0} 
       sx={{ 
-        zIndex: (theme: any) => theme.zIndex.appBar + 2,
+        zIndex: 1202,
         overflow: 'visible',
         pointerEvents: 'auto',
         backdropFilter: scrolled ? 'blur(20px)' : 'blur(8px)',
@@ -148,7 +148,7 @@ export default function Navbar() {
                 }
               }}
             >
-              <Box sx={{ position: 'relative' }}>
+              <div style={{ position: 'relative' }}>
                 <Image 
                   src={logoSrc} 
                   alt="Ø§Ù†Ø¬Ù…Ù† Ø¹Ù„Ù…ÛŒ Ù…Ù‡Ù†Ø¯Ø³ÛŒ Ú©Ø§Ù…Ù¾ÛŒÙˆØªØ±" 
@@ -179,7 +179,7 @@ export default function Navbar() {
                     }}
                   />
                 )}
-              </Box>
+              </div>
               <GlitchText
                 speed={0.5}
                 enableShadows={true}
@@ -213,10 +213,10 @@ export default function Navbar() {
               </GlitchText>
             </Link>
           </Stack>
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, flex: 1, justifyContent: 'center', mx: 4 }}>
+          <div style={{ display: 'none', flex: 1, justifyContent: 'center', marginLeft: 16, marginRight: 16 }} className="md:flex">
             <SearchBar />
-          </Box>
-          <Stack direction={isRtl ? 'row-reverse' : 'row'} gap={0.75} sx={{ display: { xs: 'none', md: 'flex' } }}>
+          </div>
+          <Stack direction={isRtl ? 'row-reverse' : 'row'} gap={0.75} style={{ display: 'none' }} className="md:flex">
             {links.map((l, index) => {
               const active = current.startsWith('/' + l.key);
               return (
@@ -267,14 +267,14 @@ export default function Navbar() {
           </Stack>
           <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
             <Fade in={mounted} timeout={800}>
-              <Box>
+              <div>
                 <LanguageToggle />
-              </Box>
+              </div>
             </Fade>
             <Fade in={mounted} timeout={900}>
-              <Box>
+              <div>
                 <ThemeToggle />
-              </Box>
+              </div>
             </Fade>
             <IconButton 
               sx={{ 
@@ -308,7 +308,7 @@ export default function Navbar() {
           }
         }}
       >
-        <Box sx={{ width: 300, p: 3, direction: isRtl ? 'rtl' : 'ltr' }} role="presentation">
+        <div style={{ width: 300, padding: 24, direction: isRtl ? 'rtl' : 'ltr' }} role="presentation">
           <Stack direction={isRtl ? 'row-reverse' : 'row'} justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
             <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
               <Image src={logoSrc} alt="logo" width={32} height={32} style={{ width: 'auto' }} />
@@ -420,7 +420,7 @@ export default function Navbar() {
               </Slide>
             ))}
           </List>
-        </Box>
+        </div>
       </Drawer>
     </AppBar>
   );
