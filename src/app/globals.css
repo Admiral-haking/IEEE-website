@@ -1,0 +1,369 @@
+:root {
+  --header-height-mobile: 56px;
+  --header-height-desktop: 64px;
+  --footer-height: 72px;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Professional engineering association theme */
+body {
+  font-family: var(--font-body-en), 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+}
+
+/* Windows-specific font improvements */
+@supports (-webkit-font-smoothing: antialiased) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Fallback fonts for Windows */
+.font-fallback {
+  font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+}
+
+/* Windows-specific text rendering improvements (scoped to body) */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fix text layering issues - only apply to problematic elements */
+.MuiTypography-root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure text elements are properly layered - minimal changes */
+p, span, div, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label {
+  position: relative;
+  z-index: auto;
+}
+
+/* Fix overlapping text issues - only when needed */
+.MuiButton-root {
+  position: relative;
+  z-index: 2;
+}
+
+.MuiCard-root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent text blur on Windows */
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+  * {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+/* High DPI display optimization for Windows */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  * {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Windows ClearType optimization */
+@supports (font-variant-ligatures: common-ligatures) {
+  * {
+    font-variant-ligatures: common-ligatures;
+  }
+}
+
+/* Typography improvements for Windows */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Persian text optimization for Windows */
+[lang="fa"] {
+  font-family: var(--font-body-fa), 'Tahoma', 'Arial', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* English text optimization for Windows */
+[lang="en"] {
+  font-family: var(--font-body-en), 'Segoe UI', 'Arial', sans-serif;
+  direction: ltr;
+  text-align: left;
+}
+
+/* Fix text layering and overlapping issues - minimal approach */
+body {
+  overflow-x: hidden;
+}
+
+/* Fix specific text elements - preserve original spacing */
+h1, h2, h3, h4, h5, h6 {
+  position: relative;
+  z-index: 2;
+  display: block;
+}
+
+p {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+/* Fix GlitchText layering */
+.glitch-text {
+  position: relative;
+  z-index: 2;
+  display: block;
+}
+
+/* Anime/Cartoon/Computer Style Animations */
+@keyframes neonGlow {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 15px #0073e6,
+      0 0 20px #0073e6,
+      0 0 35px #0073e6,
+      0 0 40px #0073e6;
+  }
+  50% {
+    text-shadow: 
+      0 0 2px #fff,
+      0 0 5px #fff,
+      0 0 8px #00ff00,
+      0 0 12px #00ff00,
+      0 0 18px #00ff00,
+      0 0 22px #00ff00;
+  }
+}
+
+@keyframes matrixRain {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+@keyframes cyberPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px rgba(0, 255, 255, 0.5),
+      inset 0 0 5px rgba(0, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px rgba(0, 255, 255, 0.8),
+      inset 0 0 20px rgba(0, 255, 255, 0.2);
+  }
+}
+
+@keyframes hologramFlicker {
+  0%, 100% {
+    opacity: 1;
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    opacity: 0.8;
+    filter: hue-rotate(90deg);
+  }
+  50% {
+    opacity: 0.9;
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    opacity: 0.7;
+    filter: hue-rotate(270deg);
+  }
+}
+
+/* Subtle geometric pattern for dark mode */
+body.dark {
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.dark::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(45deg, transparent 40%, rgba(25,118,210,0.02) 50%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, rgba(156,39,176,0.02) 50%, transparent 60%);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Light mode subtle pattern */
+body:not(.dark)::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(45deg, transparent 40%, rgba(25,118,210,0.01) 50%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, rgba(156,39,176,0.01) 50%, transparent 60%);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Professional scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(25,118,210,0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(25,118,210,0.7);
+}
+
+/* Smooth transitions for theme changes (scope to common surfaces to avoid jank) */
+body, a, button, input, textarea, select,
+.MuiPaper-root, .MuiButton-root, .MuiChip-root, .MuiAppBar-root,
+.MuiCard-root, .MuiTypography-root, .MuiLink-root, .MuiIconButton-root {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Video background animations */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Floating particles effect */
+.floating-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.particle:nth-child(1) {
+  width: 4px;
+  height: 4px;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+  width: 6px;
+  height: 6px;
+  left: 20%;
+  animation-delay: 1s;
+}
+
+.particle:nth-child(3) {
+  width: 3px;
+  height: 3px;
+  left: 30%;
+  animation-delay: 2s;
+}
+
+.particle:nth-child(4) {
+  width: 5px;
+  height: 5px;
+  left: 40%;
+  animation-delay: 3s;
+}
+
+.particle:nth-child(5) {
+  width: 4px;
+  height: 4px;
+  left: 50%;
+  animation-delay: 4s;
+}
+
+.particle:nth-child(6) {
+  width: 6px;
+  height: 6px;
+  left: 60%;
+  animation-delay: 5s;
+}
+
+.particle:nth-child(7) {
+  width: 3px;
+  height: 3px;
+  left: 70%;
+  animation-delay: 6s;
+}
+
+.particle:nth-child(8) {
+  width: 5px;
+  height: 5px;
+  left: 80%;
+  animation-delay: 7s;
+}
+
+.particle:nth-child(9) {
+  width: 4px;
+  height: 4px;
+  left: 90%;
+  animation-delay: 8s;
+}
