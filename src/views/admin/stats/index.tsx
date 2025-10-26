@@ -1,4 +1,5 @@
-"use client";`r`nimport { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+"use client";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 import React, { useState } from 'react';
 import { 
