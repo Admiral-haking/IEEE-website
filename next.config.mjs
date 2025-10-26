@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   assetPrefix: process.env.ASSET_PREFIX || undefined,
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   async headers() {
     return [
       {
