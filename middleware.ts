@@ -49,7 +49,7 @@ export function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = `/${pref}${pathname}`;
       const res = NextResponse.redirect(url);
-      res.cookies.set('hippo_locale', pref, { path: '/' });
+      res.cookies.set('hippo_language', pref, { path: '/' });
       return addSecurityHeaders(res, request);
     }
   }
@@ -58,7 +58,7 @@ export function middleware(request: NextRequest) {
   // Persist locale cookie whenever a locale prefix exists in the URL
   const pathLocale = pathname.split('/').filter(Boolean)[0];
   if (pathLocale === 'en' || pathLocale === 'fa') {
-    response.cookies.set('hippo_locale', pathLocale, { path: '/' });
+    response.cookies.set('hippo_language', pathLocale, { path: '/' });
   }
   return addSecurityHeaders(response, request);
 }

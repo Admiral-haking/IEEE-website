@@ -50,6 +50,10 @@ export default function LanguageToggle() {
   const choose = (code: Lang) => {
     setLang(code);
     i18n.changeLanguage(code);
+    try {
+      const maxAge = 60 * 60 * 24 * 365; // 1 year
+      document.cookie = `hippo_language=${code}; path=/; max-age=${maxAge}`;
+    } catch {}
     // Rebuild path with selected locale
     let path = pathname || '/';
     const parts = path.split('/').filter(Boolean);

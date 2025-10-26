@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Box, Button, Container, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import NextLink from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { typographyPresets } from '@/utils/typography';
@@ -14,7 +15,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
     noSsr: true
   });
 
-  const heroTitleStyles = {
+  const heroTitleStyles: SxProps<Theme> = {
     ...typographyPresets.pageTitle(locale),
     letterSpacing: locale === 'en' ? -0.5 : 0,
     fontFamily: locale === 'fa' ? 'var(--font-display-fa)' : 'var(--font-anime-en)',
@@ -23,29 +24,29 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
     color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.text.primary
   };
 
-  const taglineStyles = {
+  const taglineStyles: SxProps<Theme> = {
     fontFamily: locale === 'fa' ? 'var(--font-body-fa)' : 'var(--font-tech-en)',
     color: theme.palette.text.secondary
   };
 
-  const subtitleStyles = {
+  const subtitleStyles: SxProps<Theme> = {
     ...typographyPresets.body(locale),
     fontFamily: locale === 'fa' ? 'var(--font-body-fa)' : 'var(--font-cartoon-en)',
     color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.8)' : theme.palette.text.secondary
   };
 
+  const containerSx: SxProps<Theme> = {
+    position: 'relative',
+    pt: { xs: 8, md: 16 },
+    pb: { xs: 8, md: 12 },
+    minHeight: { xs: 'auto', md: '80vh' },
+    backgroundColor: theme.palette.mode === 'dark'
+      ? theme.palette.background.default
+      : theme.palette.background.paper
+  };
+
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        pt: { xs: 8, md: 16 },
-        pb: { xs: 8, md: 12 },
-        minHeight: { xs: 'auto', md: '80vh' },
-        backgroundColor: theme.palette.mode === 'dark'
-          ? theme.palette.background.default
-          : theme.palette.background.paper
-      }}
-    >
+    <Box sx={containerSx}>
       <Container maxWidth="lg">
         <Stack gap={{ xs: 3, md: 4 }} alignItems="center" textAlign="center">
           <Typography variant="h1" component="h1" sx={heroTitleStyles}>
@@ -71,9 +72,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
               ...subtitleStyles
             }}
           >
-            {locale === 'fa'
-              ? 'انجمن علمی دانشجویان مهندسی کامپیوتر دانشگاه صنعتی قوچان'
-              : 'Scientific Association of Computer Engineering Students at Quchan University of Technology'}
+            {t('home_subtitle')}
           </Typography>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}

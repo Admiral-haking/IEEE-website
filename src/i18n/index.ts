@@ -9,6 +9,10 @@ let initialized = false;
 
 export function ensureI18n() {
   if (!initialized && !i18n.isInitialized) {
+    // Derive initial language from <html lang> on client to avoid hydration mismatches
+    const initialLng = typeof window !== 'undefined'
+      ? (document.documentElement.lang === 'fa' ? 'fa' : 'en')
+      : 'en';
     i18n
       .use(LanguageDetector)
       .use(initReactI18next)
@@ -28,8 +32,8 @@ export function ensureI18n() {
           lookupFromPathIndex: 0
         },
         initImmediate: false,
-        // Set a more predictable default for SSR
-        lng: 'en'
+        // Set a more predictable default for SSR/CSR
+        lng: initialLng
       });
     initialized = true;
   }

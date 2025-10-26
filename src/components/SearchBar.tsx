@@ -2,9 +2,37 @@
 
 import React, { useState } from 'react';
 import { Box, TextField, InputAdornment, IconButton, Paper, List, ListItemButton, ListItemText, Typography } from '@mui/material';
+import type { SystemStyleObject } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { usePathname } from 'next/navigation';
+
+const wrapperSx: SystemStyleObject<Theme> = {
+  position: 'relative',
+  width: '100%',
+  maxWidth: { xs: 260, sm: 340, md: 420 }
+};
+
+const textFieldSx = (isRtl: boolean): SystemStyleObject<Theme> => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 3,
+    backgroundColor: 'background.paper',
+    height: { xs: 36, sm: 40, md: 44 } as const,
+    fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' } as const,
+    direction: isRtl ? 'rtl' : 'ltr',
+    '& input': {
+      textAlign: isRtl ? 'right' : 'left',
+      fontFamily: isRtl ? 'var(--font-body-fa)' : 'var(--font-body-en)'
+    },
+    '&:hover': {
+      backgroundColor: 'background.paper',
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'background.paper',
+    },
+  },
+});
 
 export default function SearchBar() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +40,10 @@ export default function SearchBar() {
   const pathname = usePathname();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'fa';
+  const isRtl = locale === 'fa';
+  const placeholderText = isRtl ? 'O?O3O?O?U^ O_O? O3OUOO?...' : 'Search the site...';
+  const searchAriaLabel = isRtl ? 'O?O3O?O?U^ O_O? O3OUOO?' : 'Search the site';
+  const clearAriaLabel = isRtl ? 'U_OUc UcO?O_U+ O?O3O?O?U^' : 'Clear search';
 
   const suggestions = [
     { text: locale === 'fa' ? 'کارگاه برنامه‌نویسی' : 'Programming Workshop', type: 'event' },
@@ -40,11 +72,14 @@ export default function SearchBar() {
   };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', maxWidth: { xs: 260, sm: 340, md: 420 } }}>
+    <Box sx={wrapperSx}>
       <TextField
         fullWidth
-        placeholder={locale === 'fa' ? 'جستجو در سایت...' : 'Search the site...'}
-        inputProps={{ 'aria-label': locale === 'fa' ? 'جستجو در سایت' : 'Search the site' }}
+        placeholder={placeholderText}
+        inputProps={{
+          name: 'navbar-search',
+          'aria-label': searchAriaLabel
+        }}
         value={searchTerm}
         onChange={handleInputChange}
         onKeyPress={(e) => {
@@ -60,31 +95,13 @@ export default function SearchBar() {
           ),
           endAdornment: searchTerm && (
             <InputAdornment position="end">
-              <IconButton onClick={clearSearch} size="small" aria-label={locale === 'fa' ? 'پاک کردن جستجو' : 'Clear search'}>
+              <IconButton onClick={clearSearch} size="small" aria-label={clearAriaLabel}>
                 <ClearIcon />
               </IconButton>
             </InputAdornment>
           ),
         }}
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 3,
-            backgroundColor: 'background.paper',
-            height: { xs: 36, sm: 40, md: 44 },
-            fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
-            direction: locale === 'fa' ? 'rtl' : 'ltr',
-            '& input': {
-              textAlign: locale === 'fa' ? 'right' : 'left',
-              fontFamily: locale === 'fa' ? 'var(--font-body-fa)' : 'var(--font-body-en)'
-            },
-            '&:hover': {
-              backgroundColor: 'background.paper',
-            },
-            '&.Mui-focused': {
-              backgroundColor: 'background.paper',
-            },
-          },
-        }}
+        sx={textFieldSx(isRtl)}
       />
       
       {showSuggestions && (

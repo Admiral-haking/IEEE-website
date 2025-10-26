@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Grid, Paper, Stack, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
+import { alpha } from '@mui/material/styles';
 
 export default function StatsBand({ stats }: { stats: { value: number | string; label: string }[] }) {
   return (
@@ -12,13 +12,12 @@ export default function StatsBand({ stats }: { stats: { value: number | string; 
       mb: { xs: 4, md: 8 }, 
       backgroundImage: 'linear-gradient(135deg, rgba(25,118,210,0.08), rgba(156,39,176,0.06))',
       border: '1px solid',
-      borderColor: 'primary.main',
-      borderOpacity: 0.2
+      borderColor: (t) => alpha(t.palette.primary.main, 0.2)
     }}>
       <Grid container spacing={{ xs: 2, md: 3 }}>
         {stats.map((s, i) => (
           <Grid item key={i} xs={6} md={3}>
-            <Stack alignItems="center" textAlign="center" spacing={1} component={motion.div} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }}>
+            <Stack alignItems="center" textAlign="center" spacing={1}>
               <Typography 
                 variant="h2" 
                 fontWeight={800} 

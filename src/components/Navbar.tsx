@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from 'react';
 import NextLink from 'next/link';
@@ -7,7 +7,6 @@ import { useColorScheme } from '@mui/joy/styles';
 import { usePathname } from 'next/navigation';
 import { 
   AppBar, 
-  Button, 
   Container, 
   Link, 
   Stack, 
@@ -30,7 +29,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import LanguageToggle from '@/components/LanguageToggle';
 import ThemeToggle from '@/components/ThemeToggle';
-import SearchBar from '@/components/SearchBar';
+import dynamic from 'next/dynamic';
+const SearchBar = dynamic(() => import('@/components/SearchBar'), { ssr: false });
 import GlitchText from '@/components/GlitchText';
 import { useTranslation } from 'react-i18next';
 
@@ -107,17 +107,15 @@ export default function Navbar() {
         zIndex: 1000,
         overflow: 'visible',
         pointerEvents: 'auto',
-        backdropFilter: scrolled ? 'blur(10px)' : 'blur(5px)',
-        backgroundColor: scrolled 
-          ? (colorMode === 'dark' ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.8)')
-          : 'transparent',
-        borderBottom: scrolled 
-          ? `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
-          : 'none',
-        transition: 'all 0.3s ease',
-        boxShadow: scrolled 
-          ? (colorMode === 'dark' ? '0 2px 10px rgba(0, 0, 0, 0.2)' : '0 2px 10px rgba(0, 0, 0, 0.1)')
-          : 'none'
+        // Subtle frosted-glass effect
+        backdropFilter: 'saturate(140%) blur(8px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(8px)',
+        backgroundColor: colorMode === 'dark' 
+          ? 'rgba(18, 18, 18, 0.22)'
+          : 'rgba(255, 255, 255, 0.18)',
+        borderBottom: `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)'}`,
+        transition: 'background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.05)'
       }}
     >
       <Container maxWidth="lg">
@@ -132,7 +130,7 @@ export default function Navbar() {
             transition: 'padding 0.3s ease, min-height 0.3s ease'
           }}
         >
-          <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
+          <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={{ xs: 0.5, md: 1 }} alignItems="center">
             <Link 
               component={NextLink} 
               href={`/${locale}`} 
@@ -151,7 +149,7 @@ export default function Navbar() {
               <div style={{ position: 'relative' }}>
                 <Image 
                   src={logoSrc} 
-                  alt="انجمن علمی مهندسی کامپیوتر" 
+                  alt="IEEE Association logo" 
                   width={scrolled ? 100 : 120} 
                   height={scrolled ? 60 : 80} 
                   style={{ 
@@ -209,62 +207,13 @@ export default function Navbar() {
                   transition: 'font-size 0.3s ease'
                 }}
               >
-                {locale === 'fa' ? 'Ø§Ù†Ø¬Ù…Ù† Ø¹Ù„Ù…ÛŒ' : 'CEA'}
+                {locale === 'fa' ? t('name') : 'CEA'}
               </GlitchText>
             </Link>
           </Stack>
           <div style={{ display: 'none', flex: 1, justifyContent: 'center', marginLeft: 16, marginRight: 16 }} className="md:flex">
             <SearchBar />
           </div>
-          <Stack direction={isRtl ? 'row-reverse' : 'row'} gap={0.75} style={{ display: 'none' }} className="md:flex">
-            {links.map((l, index) => {
-              const active = current.startsWith('/' + l.key);
-              return (
-                <Fade in={mounted} timeout={300 + index * 100} key={l.key}>
-                  <Button 
-                    LinkComponent={NextLink} 
-                    href={l.href} 
-                    variant={active ? 'contained' : 'text'} 
-                    size="small" 
-                    sx={{ 
-                      textTransform: 'none',
-                      fontWeight: active ? 600 : 500,
-                      borderRadius: 1.5,
-                      px: 1,
-                      py: 0.5,
-                      position: 'relative',
-                      overflow: 'hidden',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: active 
-                          ? '0 8px 25px rgba(25, 118, 210, 0.3)' 
-                          : '0 4px 15px rgba(0, 0, 0, 0.1)',
-                        backgroundColor: active 
-                          ? 'primary.dark' 
-                          : (colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)')
-                      },
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: '-100%',
-                        width: '100%',
-                        height: '100%',
-                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                        transition: 'left 0.5s ease',
-                      },
-                      '&:hover::before': {
-                        left: '100%'
-                      }
-                    }}
-                  >
-                    {l.label}
-                  </Button>
-                </Fade>
-              );
-            })}
-          </Stack>
           <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
             <Fade in={mounted} timeout={800}>
               <div>
@@ -277,18 +226,24 @@ export default function Navbar() {
               </div>
             </Fade>
             <IconButton 
+              edge="end"
               sx={{ 
-                display: { xs: 'inline-flex', md: 'none' },
-                transition: 'all 0.3s ease',
+                width: 44,
+                height: 44,
+                borderRadius: 2,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  transform: 'scale(1.1)',
-                  backgroundColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'
+                  transform: 'scale(1.06)',
+                  backgroundColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'
                 }
               }} 
               onClick={() => setOpen(true)} 
               aria-label="menu"
             >
-              <MenuIcon />
+              <MenuIcon sx={{ fontSize: 24 }} />
             </IconButton>
           </Stack>
         </Toolbar>
@@ -298,17 +253,19 @@ export default function Navbar() {
         open={open} 
         onClose={() => setOpen(false)} 
         sx={{ 
-          display: { md: 'none' },
           '& .MuiDrawer-paper': {
-            background: colorMode === 'dark' 
-              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
-            backdropFilter: 'blur(20px)',
-            borderRight: `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
+            width: { xs: '100vw', sm: 320 },
+            // Frosted drawer panel with subtle blur
+            background: colorMode === 'dark'
+              ? 'linear-gradient(135deg, rgba(26,26,26,0.32) 0%, rgba(45,45,45,0.26) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(245,245,245,0.22) 100%)',
+            backdropFilter: 'saturate(140%) blur(10px)',
+            WebkitBackdropFilter: 'saturate(140%) blur(10px)',
+            borderRight: `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)'}`
           }
         }}
       >
-        <div style={{ width: 300, padding: 24, direction: isRtl ? 'rtl' : 'ltr' }} role="presentation">
+        <div style={{ width: '100%', padding: 24, direction: isRtl ? 'rtl' : 'ltr' }} role="presentation">
           <Stack direction={isRtl ? 'row-reverse' : 'row'} justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
             <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
               <Image src={logoSrc} alt="logo" width={32} height={32} style={{ width: 'auto' }} />
@@ -354,6 +311,7 @@ export default function Navbar() {
                     <ListItemButton 
                       component={NextLink} 
                       href={l.href} 
+                      onClick={() => setOpen(false)}
                       sx={{ 
                         borderRadius: 2, 
                         mb: 1,
@@ -399,6 +357,7 @@ export default function Navbar() {
                 <ListItemButton 
                   component={NextLink} 
                   href={l.href} 
+                  onClick={() => setOpen(false)}
                   sx={{ 
                     borderRadius: 2, 
                     mb: 1,
@@ -425,8 +384,3 @@ export default function Navbar() {
     </AppBar>
   );
 }
-
-
-
-
-

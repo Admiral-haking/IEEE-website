@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from 'react';
 import NextLink from 'next/link';
@@ -27,6 +27,8 @@ const LazyImage = ({ src, alt, width, height, style, priority = false }: {
 }) => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
+  const lang = typeof document !== 'undefined' ? document.documentElement.lang : 'en';
+  const fallbackText = (lang || 'en').startsWith('fa') ? 'تصویر در دسترس نیست' : 'Image not available';
 
   return (
     <Box sx={{ position: 'relative', ...style }}>
@@ -67,7 +69,7 @@ const LazyImage = ({ src, alt, width, height, style, priority = false }: {
             color: 'grey.500'
           }}
         >
-          <Typography variant="caption">ØªØµÙˆÛŒØ±</Typography>
+          <Typography variant="caption">{fallbackText}</Typography>
         </Box>
       )}
     </Box>
@@ -344,7 +346,7 @@ export default function HomeSections({ locale, dict, solutions, capabilities, po
                   }
                 }}
               >
-                <CardActionArea component={NextLink} href={`/${locale}/blog/${p.slug}`} sx={{ display: 'flex', alignItems: 'stretch' }}>
+                <CardActionArea component={NextLink as any} href={`/${locale}/blog/${p.slug}`} sx={{ display: 'flex', alignItems: 'stretch' }}>
                   {p.coverFileId && (
                     <LazyImage 
                       src={`/api/media/${p.coverFileId}`} 
@@ -403,7 +405,7 @@ export default function HomeSections({ locale, dict, solutions, capabilities, po
                 }
               }}
             >
-              <CardActionArea component={NextLink} href={`/${locale}/jobs/${j.slug}`}>
+              <CardActionArea component={NextLink as any} href={`/${locale}/jobs/${j.slug}`}>
                 {j.imageFileId && (
                   <LazyImage 
                     src={`/api/media/${j.imageFileId}`} 
@@ -442,7 +444,4 @@ export default function HomeSections({ locale, dict, solutions, capabilities, po
     </>
   );
 }
-
-
-
 

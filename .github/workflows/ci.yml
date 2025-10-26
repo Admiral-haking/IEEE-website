@@ -13,6 +13,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +45,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
       - name: Build and push image
         uses: docker/build-push-action@v6
@@ -50,18 +55,17 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:latest
 
       - name: Deploy to server (optional)
-        if: ${{ secrets.SSH_HOST && secrets.SSH_USER }}
+        if: ${{ env.SSH_HOST != '' && env.SSH_USER != '' }}
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
           script: |
-            docker login ghcr.io -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }}
+            docker login ghcr.io -u $GITHUB_ACTOR -p ${{ github.token }}
             docker pull ghcr.io/${{ github.repository }}:latest
             docker stop hippo || true && docker rm hippo || true
             docker run -d --name hippo --restart unless-stopped -p 3000:3000 \
               -e NODE_ENV=production \
-              -e MONGODB_URI=${{ secrets.MONGODB_URI }} \
+              -e MONGODB_URI=${{ env.MONGODB_URI }} \
               ghcr.io/${{ github.repository }}:latest
-

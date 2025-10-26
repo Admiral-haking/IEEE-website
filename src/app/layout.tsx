@@ -20,21 +20,21 @@ const bebas = Bebas_Neue({
   variable: '--font-display-en', 
   display: 'swap',
   fallback: ['Impact', 'Arial Black', 'sans-serif'],
-  preload: true
+  preload: false
 });
 const orbitron = Orbitron({ 
   subsets: ['latin'], 
   variable: '--font-anime-en', 
   display: 'swap',
   fallback: ['Courier New', 'monospace'],
-  preload: true
+  preload: false
 });
 const exo2 = Exo_2({ 
   subsets: ['latin'], 
   variable: '--font-tech-en', 
   display: 'swap',
   fallback: ['Segoe UI', 'Arial', 'sans-serif'],
-  preload: true
+  preload: false
 });
 const rajdhani = Rajdhani({ 
   subsets: ['latin'], 
@@ -42,7 +42,7 @@ const rajdhani = Rajdhani({
   variable: '--font-cartoon-en', 
   display: 'swap',
   fallback: ['Arial', 'sans-serif'],
-  preload: true
+  preload: false
 });
 // Placeholder for Bitcount Prop Single Ink (use local later)
 const bitcountFallback = Saira_Condensed({ 
@@ -51,7 +51,7 @@ const bitcountFallback = Saira_Condensed({
   variable: '--font-bitcount', 
   display: 'swap',
   fallback: ['Arial Narrow', 'Arial', 'sans-serif'],
-  preload: true
+  preload: false
 });
 
 // Persian fonts with Windows optimization
@@ -68,12 +68,12 @@ const lalezar = Lalezar({
   variable: '--font-display-fa', 
   display: 'swap',
   fallback: ['Tahoma', 'Arial', 'sans-serif'],
-  preload: true
+  preload: false
 });
 
 export const metadata: Metadata = {
-  title: 'انجمن علمی مهندسی کامپیوتر',
-  description: 'انجمن علمی مهندسی کامپیوتر دانشگاه صنعتی قوچان',
+  title: 'IEEE Association - Quchan University of Technology',
+  description: 'Quchan University of Technology - Education - Research - Innovation',
   icons: {
     icon: '/icon.png',
     apple: '/apple-icon.png'
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Detect locale on the server to avoid RTL/LTR and font flash on first paint
   const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get('hippo_locale')?.value;
+  const cookieLocale = cookieStore.get('hippo_language')?.value;
   const locale: 'en' | 'fa' = cookieLocale === 'fa' ? 'fa' : 'en';
   const dir = locale === 'fa' ? 'rtl' : 'ltr';
   return (

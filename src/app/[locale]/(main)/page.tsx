@@ -6,39 +6,17 @@ import BlogPost from '@/models/BlogPost';
 import CaseStudy from '@/models/CaseStudy';
 import Job from '@/models/Job';
 import Hero from '@/views/home/components/Hero';
-import StatsBand from '@/views/home/components/StatsBand';
-import NextLink from 'next/link';
-import { Container, Stack, Typography, Grid, Card, CardActionArea, CardContent, Chip, Box, Button } from '@mui/material';
-import HomeSections from '@/views/home/components/HomeSections';
-import Image from 'next/image';
+import { Container } from '@mui/material';
+import HomeCompositeClient from '@/views/home/components/HomeCompositeClient';
 import type { Metadata } from 'next';
 import { buildListMetadata } from '@/lib/metadata';
-import { typographyPresets } from '@/utils/typography';
 
 async function getDict(locale: 'en' | 'fa') {
   return locale === 'fa' ? (await import('@/locales/fa/common.json')).default : (await import('@/locales/en/common.json')).default;
 }
 
-function SectionHeader({ title, subtitle, action, locale }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; locale: 'en' | 'fa' }) {
-  return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-      <Box>
-        <Typography variant="h3" sx={typographyPresets.sectionHeader(locale)}>
-          {title}
-        </Typography>
-        {subtitle && (
-          <Typography color="text.secondary" sx={typographyPresets.caption(locale)}>
-            {subtitle}
-          </Typography>
-        )}
-      </Box>
-      {action}
-    </Stack>
-  );
-}
-
-export default async function HomePage({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }) {
-  const { locale } = await params;
+export default async function HomePage({ params }: { params: { locale: 'en' | 'fa' } }) {
+  const { locale } = params;
   const dict = await getDict(locale);
   
   // Ensure database connection is established before making queries
@@ -77,22 +55,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: '
     <>
       <Hero locale={locale} />
       <Container sx={{ py: { xs: 6, md: 10 } }}>
-        {/* Unified section header for consistent title/subtitle sizing across locales */}
-        {/** Section headers are unified across locales by the shared component above */}
-        <StatsBand stats={[
-          { value: solutionsTotal, label: dict.stats_projects || 'Solutions' },
-          { value: postsTotal, label: dict.stats_blog_posts || 'Blog posts' },
-          { value: casesTotal, label: dict.stats_case_studies || 'Case studies' },
-          { value: jobsTotal, label: dict.stats_jobs || 'Open jobs' }
-        ]} />
-        <HomeSections locale={locale} dict={dict} solutions={solutions} capabilities={capabilities} posts={posts} cases={cases} jobs={jobs} />
+        <HomeCompositeClient
+          stats={[
+            { value: solutionsTotal, label: dict.stats_projects || 'Solutions' },
+            { value: postsTotal, label: dict.stats_blog_posts || 'Blog posts' },
+            { value: casesTotal, label: dict.stats_case_studies || 'Case studies' },
+            { value: jobsTotal, label: dict.stats_jobs || 'Open jobs' }
+          ]}
+          locale={locale}
+          dict={dict}
+          solutions={solutions}
+          capabilities={capabilities}
+          posts={posts}
+          cases={cases}
+          jobs={jobs}
+        />
       </Container>
     </>
   );
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: 'en'|'fa' }> }): Promise<Metadata> {
-  const { locale } = await params;
+export async function generateMetadata({ params }: { params: { locale: 'en'|'fa' } }): Promise<Metadata> {
+  const { locale } = params;
   const dict = await getDict(locale);
   return buildListMetadata({
     locale,
