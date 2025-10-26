@@ -11,7 +11,7 @@ async function getDict(locale: 'en'|'fa') {
 
 export default async function PrivacyPage({ params }: { params: Promise<{ locale: 'en'|'fa' }> }) {
   const { locale } = await params;
-  const dict = await getDict(locale);
+  const dict: any = await getDict(locale);
   const page = await StaticPage.findOne({ key: 'privacy', locale }).lean();
   return (
     <Container sx={{ py: 6 }}>
@@ -23,6 +23,6 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: 'en'|'fa' }> }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = await getDict(locale as any);
+  const dict: any = await getDict(locale as any);
   return buildListMetadata({ locale, path: '/privacy', title: dict.privacy, description: dict.nav_pages_sub });
 }

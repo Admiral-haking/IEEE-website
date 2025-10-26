@@ -167,7 +167,7 @@ export default function FuzzyText({
       className={className}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      sx={generateFuzzyStyles()}
+      sx={generateFuzzyStyles() as any}
     >
       <Typography variant={variant} component="span">
         {children}
