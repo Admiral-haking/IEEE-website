@@ -1,5 +1,4 @@
-﻿import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
-"use client";
+"use client";`r`nimport { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import React, { useState } from 'react';
 import { 
@@ -122,22 +121,22 @@ export default function StatsAdminView() {
 
   const getCategoryLabel = (category: string) => {
     const categoryLabels: Record<string, string> = {
-      members: locale === 'fa' ? 'Ø§Ø¹Ø¶Ø§' : 'Members',
-      projects: locale === 'fa' ? 'Ù¾Ø±ÙˆÚ˜Ù‡â€ŒÙ‡Ø§' : 'Projects',
-      publications: locale === 'fa' ? 'Ø§Ù†ØªØ´Ø§Ø±Ø§Øª' : 'Publications',
-      events: locale === 'fa' ? 'Ø±ÙˆÛŒØ¯Ø§Ø¯Ù‡Ø§' : 'Events',
-      achievements: locale === 'fa' ? 'Ø¯Ø³ØªØ§ÙˆØ±Ø¯Ù‡Ø§' : 'Achievements',
-      general: locale === 'fa' ? 'Ø¹Ù…ÙˆÙ…ÛŒ' : 'General'
+      members: locale === 'fa' ? 'اعضا' : 'Members',
+      projects: locale === 'fa' ? 'پروژه‌ها' : 'Projects',
+      publications: locale === 'fa' ? 'انتشارات' : 'Publications',
+      events: locale === 'fa' ? 'رویدادها' : 'Events',
+      achievements: locale === 'fa' ? 'دستاوردها' : 'Achievements',
+      general: locale === 'fa' ? 'عمومی' : 'General'
     };
     return categoryLabels[category] || category;
   };
 
   const getTypeLabel = (type: string) => {
     const typeLabels: Record<string, string> = {
-      number: locale === 'fa' ? 'Ø¹Ø¯Ø¯' : 'Number',
-      text: locale === 'fa' ? 'Ù…ØªÙ†' : 'Text',
-      percentage: locale === 'fa' ? 'Ø¯Ø±ØµØ¯' : 'Percentage',
-      currency: locale === 'fa' ? 'Ø§Ø±Ø²' : 'Currency'
+      number: locale === 'fa' ? 'عدد' : 'Number',
+      text: locale === 'fa' ? 'متن' : 'Text',
+      percentage: locale === 'fa' ? 'درصد' : 'Percentage',
+      currency: locale === 'fa' ? 'ارز' : 'Currency'
     };
     return typeLabels[type] || type;
   };
@@ -157,15 +156,15 @@ export default function StatsAdminView() {
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }} justifyContent="space-between" mb={2}>
         <Box>
           <Typography variant="h5" fontWeight={700}>
-            {locale === 'fa' ? 'Ù…Ø¯ÛŒØ±ÛŒØª Ø¢Ù…Ø§Ø±' : 'Stats Management'}
+            {locale === 'fa' ? 'مدیریت آمار' : 'Stats Management'}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {locale === 'fa' ? 'Ù…Ø¯ÛŒØ±ÛŒØª Ø¢Ù…Ø§Ø± Ùˆ Ø§Ø·Ù„Ø§Ø¹Ø§Øª Ù†Ù…Ø§ÛŒØ´ÛŒ Ø³Ø§ÛŒØª' : 'Manage website statistics and display information'}
+            {locale === 'fa' ? 'مدیریت آمار و اطلاعات نمایشی سایت' : 'Manage website statistics and display information'}
           </Typography>
         </Box>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
           <Button variant="contained" color="primary" onClick={handleAdd} startIcon={<AddIcon />}>
-            {locale === 'fa' ? 'Ø§ÙØ²ÙˆØ¯Ù† Ø¢Ù…Ø§Ø±' : 'Add Stats'}
+            {locale === 'fa' ? 'افزودن آمار' : 'Add Stats'}
           </Button>
         </Stack>
       </Stack>
@@ -174,15 +173,15 @@ export default function StatsAdminView() {
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
         <TextField
           size="small"
-          placeholder={locale === 'fa' ? 'Ø¬Ø³ØªØ¬Ùˆ Ø¯Ø± Ø¢Ù…Ø§Ø±...' : 'Search stats...'}
+          placeholder={locale === 'fa' ? 'جستجو در آمار...' : 'Search stats...'}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           sx={{ minWidth: 200 }}
         />
         <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>{locale === 'fa' ? 'Ø¯Ø³ØªÙ‡â€ŒØ¨Ù†Ø¯ÛŒ' : 'Category'}</InputLabel>
+          <InputLabel>{locale === 'fa' ? 'دسته‌بندی' : 'Category'}</InputLabel>
           <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-            <MenuItem value="">{locale === 'fa' ? 'Ù‡Ù…Ù‡' : 'All'}</MenuItem>
+            <MenuItem value="">{locale === 'fa' ? 'همه' : 'All'}</MenuItem>
             <MenuItem value="members">{getCategoryLabel('members')}</MenuItem>
             <MenuItem value="projects">{getCategoryLabel('projects')}</MenuItem>
             <MenuItem value="publications">{getCategoryLabel('publications')}</MenuItem>
@@ -192,11 +191,11 @@ export default function StatsAdminView() {
           </Select>
         </FormControl>
         <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>{locale === 'fa' ? 'Ù†Ù…Ø§ÛŒØ´' : 'Visible'}</InputLabel>
+          <InputLabel>{locale === 'fa' ? 'نمایش' : 'Visible'}</InputLabel>
           <Select value={visibleFilter} onChange={(e) => setVisibleFilter(e.target.value)}>
-            <MenuItem value="">{locale === 'fa' ? 'Ù‡Ù…Ù‡' : 'All'}</MenuItem>
-            <MenuItem value="true">{locale === 'fa' ? 'Ù†Ù…Ø§ÛŒØ´' : 'Visible'}</MenuItem>
-            <MenuItem value="false">{locale === 'fa' ? 'Ù…Ø®ÙÛŒ' : 'Hidden'}</MenuItem>
+            <MenuItem value="">{locale === 'fa' ? 'همه' : 'All'}</MenuItem>
+            <MenuItem value="true">{locale === 'fa' ? 'نمایش' : 'Visible'}</MenuItem>
+            <MenuItem value="false">{locale === 'fa' ? 'مخفی' : 'Hidden'}</MenuItem>
           </Select>
         </FormControl>
       </Stack>
@@ -209,14 +208,14 @@ export default function StatsAdminView() {
                 <TableHead>
                   <TableRow>
                     <TableCell width={50}></TableCell>
-                    <TableCell>{locale === 'fa' ? 'Ú©Ù„ÛŒØ¯' : 'Key'}</TableCell>
-                    <TableCell>{locale === 'fa' ? 'Ù…Ù‚Ø¯Ø§Ø±' : 'Value'}</TableCell>
-                    <TableCell>{locale === 'fa' ? 'Ø¨Ø±Ú†Ø³Ø¨' : 'Label'}</TableCell>
-                    <TableCell>{locale === 'fa' ? 'Ø¯Ø³ØªÙ‡â€ŒØ¨Ù†Ø¯ÛŒ' : 'Category'}</TableCell>
-                    <TableCell>{locale === 'fa' ? 'Ù†ÙˆØ¹' : 'Type'}</TableCell>
-                    <TableCell>{locale === 'fa' ? 'Ù†Ù…Ø§ÛŒØ´' : 'Visible'}</TableCell>
-                    <TableCell>{locale === 'fa' ? 'ØªØ±ØªÛŒØ¨' : 'Order'}</TableCell>
-                    <TableCell align="right">{locale === 'fa' ? 'Ø¹Ù…Ù„ÛŒØ§Øª' : 'Actions'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'کلید' : 'Key'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'مقدار' : 'Value'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'برچسب' : 'Label'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'دسته‌بندی' : 'Category'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'نوع' : 'Type'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'نمایش' : 'Visible'}</TableCell>
+                    <TableCell>{locale === 'fa' ? 'ترتیب' : 'Order'}</TableCell>
+                    <TableCell align="right">{locale === 'fa' ? 'عملیات' : 'Actions'}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -292,12 +291,12 @@ export default function StatsAdminView() {
                           </TableCell>
                           <TableCell align="right">
                             <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                              <Tooltip title={locale === 'fa' ? 'ÙˆÛŒØ±Ø§ÛŒØ´' : 'Edit'}>
+                              <Tooltip title={locale === 'fa' ? 'ویرایش' : 'Edit'}>
                                 <IconButton size="small" onClick={() => handleEdit(row)}>
                                   <EditIcon fontSize="small" />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title={locale === 'fa' ? 'Ø­Ø°Ù' : 'Delete'}>
+                              <Tooltip title={locale === 'fa' ? 'حذف' : 'Delete'}>
                                 <IconButton size="small" onClick={() => handleDelete(row)}>
                                   <DeleteIcon fontSize="small" />
                                 </IconButton>
@@ -327,10 +326,10 @@ export default function StatsAdminView() {
           setPage(0);
         }}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage={locale === 'fa' ? 'Ø±Ø¯ÛŒÙ Ø¯Ø± ØµÙØ­Ù‡:' : 'Rows per page:'}
+        labelRowsPerPage={locale === 'fa' ? 'ردیف در صفحه:' : 'Rows per page:'}
         labelDisplayedRows={({ from, to, count }: { from: number; to: number; count: number }) => 
           locale === 'fa' 
-            ? `${from}-${to} Ø§Ø² ${count !== -1 ? count : `${to} Ø§Ø² Ø¨ÛŒØ´ Ø§Ø² ${to}`}`
+            ? `${from}-${to} از ${count !== -1 ? count : `${to} از بیش از ${to}`}`
             : `${from}-${to} of ${count !== -1 ? count : `more than ${to}`}`
         }
       />
@@ -350,28 +349,29 @@ export default function StatsAdminView() {
       {/* Delete Confirmation Dialog */}
       <Dialog open={confirmDelete.open} onClose={() => setConfirmDelete({ open: false, stats: null })}>
         <DialogTitle>
-          {locale === 'fa' ? 'ØªØ£ÛŒÛŒØ¯ Ø­Ø°Ù' : 'Confirm Delete'}
+          {locale === 'fa' ? 'تأیید حذف' : 'Confirm Delete'}
         </DialogTitle>
         <DialogContent>
           <Typography>
             {locale === 'fa' 
-              ? `Ø¢ÛŒØ§ Ø§Ø² Ø­Ø°Ù Ø¢Ù…Ø§Ø± "${confirmDelete.stats?.label}" Ù…Ø·Ù…Ø¦Ù† Ù‡Ø³ØªÛŒØ¯ØŸ`
+              ? `آیا از حذف آمار "${confirmDelete.stats?.label}" مطمئن هستید؟`
               : `Are you sure you want to delete the stats "${confirmDelete.stats?.label}"?`
             }
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDelete({ open: false, stats: null })}>
-            {locale === 'fa' ? 'Ø§Ù†ØµØ±Ø§Ù' : 'Cancel'}
+            {locale === 'fa' ? 'انصراف' : 'Cancel'}
           </Button>
           <Button onClick={confirmDeleteStats} color="error">
-            {locale === 'fa' ? 'Ø­Ø°Ù' : 'Delete'}
+            {locale === 'fa' ? 'حذف' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>
     </Container>
   );
 }
+
 
 
 
