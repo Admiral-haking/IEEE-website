@@ -5,8 +5,14 @@ import { Box, Button, Container, Stack, Typography, useMediaQuery, useTheme } fr
 import type { SxProps, Theme } from '@mui/material/styles';
 import NextLink from 'next/link';
 import { typographyPresets } from '@/utils/typography';
+import type { CommonDictionary, Locale } from '@/types/i18n';
 
-export default function Hero({ locale, dict }: { locale: 'en' | 'fa'; dict: any }) {
+interface HeroProps {
+  locale: Locale;
+  dict: CommonDictionary;
+}
+
+const Hero: React.FC<HeroProps> = ({ locale, dict }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), {
     defaultMatches: false,
@@ -102,4 +108,6 @@ export default function Hero({ locale, dict }: { locale: 'en' | 'fa'; dict: any 
       </Container>
     </Box>
   );
-}
+};
+
+export default Hero;
