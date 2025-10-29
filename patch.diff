@@ -1,0 +1,564 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/src/app/[locale]/(main)/page.tsx b/src/app/[locale]/(main)/page.tsx
+index bbe91c372d0058cec344e735c09b3bbf184fdbdc..e895a9265d654762bd100ce577ffc20af2504716 100644
+--- a/src/app/[locale]/(main)/page.tsx
++++ b/src/app/[locale]/(main)/page.tsx
+@@ -1,44 +1,47 @@
+ import React from 'react';
+ import { connectDB } from '@/lib/mongoose';
+ import Solution from '@/models/Solution';
+ import Capability from '@/models/Capability';
+ import BlogPost from '@/models/BlogPost';
+ import CaseStudy from '@/models/CaseStudy';
+ import Job from '@/models/Job';
+ import Hero from '@/views/home/components/Hero';
+ import { Container } from '@mui/material';
+ import HomeCompositeClient from '@/views/home/components/HomeCompositeClient';
+ import type { Metadata } from 'next';
+ import { buildListMetadata } from '@/lib/metadata';
++import type { CommonDictionary, Locale } from '@/types/i18n';
+ 
+-async function getDict(locale: 'en' | 'fa') {
+-  return locale === 'fa' ? (await import('@/locales/fa/common.json')).default : (await import('@/locales/en/common.json')).default;
++async function getDict(locale: Locale): Promise<CommonDictionary> {
++  return locale === 'fa'
++    ? (await import('@/locales/fa/common.json')).default
++    : (await import('@/locales/en/common.json')).default;
+ }
+ 
+-export default async function HomePage({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }) {
+-  const { locale } = await params;
++export default async function HomePage({ params }: { params: { locale: Locale } }) {
++  const { locale } = params;
+   const dict = await getDict(locale);
+   
+   // Ensure database connection is established before making queries
+   try {
+     await connectDB();
+   } catch (error) {
+     console.error('Database connection failed:', error);
+     // Continue with empty data if database is not available
+   }
+   
+   const [solutions, capabilities, posts, cases, jobs] = await Promise.all([
+     Solution.find({ locale, published: true }).sort({ createdAt: -1 }).limit(6).select('title slug summary category imageFileId').lean().then(data => 
+       data.map(item => ({ ...item, _id: item._id.toString() }))
+     ).catch(() => []),
+     Capability.find({ locale }).sort({ title: 1 }).limit(6).select('title slug area description imageFileId').lean().then(data => 
+       data.map(item => ({ ...item, _id: item._id.toString() }))
+     ).catch(() => []),
+     BlogPost.find({ locale, published: true }).sort({ createdAt: -1 }).limit(3).select('title slug excerpt coverFileId createdAt tags').lean().then(data => 
+       data.map(item => ({ ...item, _id: item._id.toString() }))
+     ).catch(() => []),
+     CaseStudy.find({ locale, published: true }).sort({ createdAt: -1 }).limit(3).select('title slug summary coverFileId createdAt').lean().then(data => 
+       data.map(item => ({ ...item, _id: item._id.toString() }))
+     ).catch(() => []),
+     Job.find({ locale, published: true }).sort({ createdAt: -1 }).limit(3).select('title slug type location imageFileId').lean().then(data => 
+       data.map(item => ({ ...item, _id: item._id.toString() }))
+@@ -53,38 +56,38 @@ export default async function HomePage({ params }: { params: Promise<{ locale: '
+ 
+   return (
+     <>
+       <Hero locale={locale} dict={dict} />
+       <Container sx={{ py: { xs: 6, md: 10 } }}>
+         <HomeCompositeClient
+           stats={[
+             { value: solutionsTotal, label: dict.stats_projects || 'Solutions' },
+             { value: postsTotal, label: dict.stats_blog_posts || 'Blog posts' },
+             { value: casesTotal, label: dict.stats_case_studies || 'Case studies' },
+             { value: jobsTotal, label: dict.stats_jobs || 'Open jobs' }
+           ]}
+           locale={locale}
+           dict={dict}
+           solutions={solutions}
+           capabilities={capabilities}
+           posts={posts}
+           cases={cases}
+           jobs={jobs}
+         />
+       </Container>
+     </>
+   );
+ }
+ 
+-export async function generateMetadata({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }): Promise<Metadata> {
+-  const { locale } = await params;
++export async function generateMetadata({ params }: { params: { locale: Locale } }): Promise<Metadata> {
++  const { locale } = params;
+   const dict = await getDict(locale);
+   return buildListMetadata({
+     locale,
+     path: '',
+     title: dict.title,
+     description: dict.tagline
+   });
+ }
+ 
+ // Revalidate static data every 5 minutes for fresher homepage while staying fast
+ export const revalidate = 300;
+diff --git a/src/components/AIChatWidget.tsx b/src/components/AIChatWidget.tsx
+index 7387b5bdd0fc8fcb6e8603149288ae42676952f6..1294576f37c0abb7c4ff0ae9da6431ac67b6b989 100644
+--- a/src/components/AIChatWidget.tsx
++++ b/src/components/AIChatWidget.tsx
+@@ -1,124 +1,147 @@
+ "use client";
+ 
+ import React from 'react';
+-import { Box, IconButton, Badge, Drawer, Stack, TextField, Button, Typography, Tooltip, Avatar } from '@mui/material';
++import { Box, IconButton, Drawer, Stack, TextField, Button, Typography, Tooltip, Avatar } from '@mui/material';
++import type { SxProps, Theme } from '@mui/material/styles';
+ import ChatIcon from '@mui/icons-material/Chat';
+ import CloseIcon from '@mui/icons-material/Close';
+ import SendIcon from '@mui/icons-material/Send';
+ import MicIcon from '@mui/icons-material/Mic';
+ import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+ 
+-type Msg = { role: 'user'|'assistant'; content: string };
++type Role = 'user' | 'assistant';
++type Msg = { role: Role; content: string };
++
++const createMessage = (role: Role, content: string): Msg => ({ role, content });
++
++const messageStackStyles = (role: Role): SxProps<Theme> => ({
++  justifyContent: role === 'user' ? 'flex-end' : 'flex-start'
++});
++
++const messageBubbleStyles = (role: Role): SxProps<Theme> => ({
++  px: 1.25,
++  py: 0.75,
++  borderRadius: 1.5,
++  bgcolor: role === 'user' ? 'primary.main' : 'action.hover',
++  color: role === 'user' ? 'primary.contrastText' : 'text.primary',
++  maxWidth: '80%'
++});
+ 
+ export default function AIChatWidget() {
+   const [open, setOpen] = React.useState(false);
+   const [input, setInput] = React.useState('');
+   const [busy, setBusy] = React.useState(false);
+   const [tts, setTts] = React.useState(false);
+   const [messages, setMessages] = React.useState<Msg[]>([
+-    { role: 'assistant', content: 'Hi! I\'m your IEEE helper. Ask me about the association, events, or research.' }
++    createMessage('assistant', "Hi! I'm your IEEE helper. Ask me about the association, events, or research.")
+   ]);
+ 
+   const speak = (text: string) => {
+     if (!tts || typeof window === 'undefined') return;
+     const utter = new SpeechSynthesisUtterance(text);
+     utter.rate = 1;
+     speechSynthesis.cancel();
+     speechSynthesis.speak(utter);
+   };
+ 
+   const onAsk = async () => {
+     const value = input.trim();
+     if (!value || busy) return;
+-    const next = [...messages, { role: 'user', content: value } as Msg];
++    const next: Msg[] = [...messages, createMessage('user', value)];
+     setMessages(next);
+     setInput('');
+     setBusy(true);
+     try {
+       const res = await fetch('/api/ai/chat', {
+         method: 'POST',
+         headers: { 'content-type': 'application/json' },
+         body: JSON.stringify({ messages: next })
+       });
+       const data = await res.json();
+       const reply = (data?.text as string) || '…';
+-      const final = [...next, { role: 'assistant', content: reply } as Msg];
++      const final: Msg[] = [...next, createMessage('assistant', reply)];
+       setMessages(final);
+       speak(reply);
+     } catch (e: any) {
+-      setMessages(m => [...m, { role: 'assistant', content: 'Sorry, something went wrong.' }]);
++      setMessages((m) => [...m, createMessage('assistant', 'Sorry, something went wrong.')]);
+     } finally {
+       setBusy(false);
+     }
+   };
+ 
+   // Simple mic using Web Speech API (if available)
+   const onMic = () => {
+     const w = window as any;
+     const Rec = w.SpeechRecognition || w.webkitSpeechRecognition;
+     if (!Rec) {
+-      setMessages(m => [...m, { role: 'assistant', content: 'Speech recognition not supported on this browser.' }]);
++      setMessages((m) => [...m, createMessage('assistant', 'Speech recognition not supported on this browser.')]);
+       return;
+     }
+     const rec = new Rec();
+     rec.lang = document?.documentElement?.lang || 'en-US';
+     rec.interimResults = false;
+     rec.maxAlternatives = 1;
+     rec.onresult = (ev: any) => {
+       const text = ev.results?.[0]?.[0]?.transcript || '';
+       setInput(text);
+     };
+     rec.start();
+   };
+ 
+   const preset = (q: string) => {
+     setInput(q);
+   };
+ 
+   const content = (
+     <Box sx={{ width: { xs: 360, sm: 420 }, p: 2 }} role="dialog" aria-label="AI Assistant">
+       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+         <Typography variant="h6" fontWeight={700}>IEEE Assistant</Typography>
+         <Stack direction="row" spacing={1} alignItems="center">
+           <Tooltip title={tts ? 'Voice: on' : 'Voice: off'}>
+             <IconButton size="small" onClick={() => setTts(v => !v)}><VolumeUpIcon fontSize="small" /></IconButton>
+           </Tooltip>
+           <IconButton size="small" onClick={() => setOpen(false)} aria-label="close"><CloseIcon fontSize="small" /></IconButton>
+         </Stack>
+       </Stack>
+       <Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: 'wrap' }}>
+         {['What is IEEE at QUT?', 'Upcoming events', 'How to join?', 'Research groups'].map((p) => (
+           <Button key={p} onClick={() => preset(p)} size="small" variant="outlined">{p}</Button>
+         ))}
+       </Stack>
+       <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1, height: 360, overflowY: 'auto', mb: 1 }}>
+         <Stack spacing={1.5}>
+           {messages.map((m, i) => (
+-            <Stack key={i} direction="row" spacing={1} alignItems="flex-start" sx={{ justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
++            <Stack
++              key={i}
++              direction="row"
++              spacing={1}
++              alignItems="flex-start"
++              sx={messageStackStyles(m.role)}
++            >
+               {m.role === 'assistant' && <Avatar sx={{ width: 24, height: 24 }}>A</Avatar>}
+-              <Box sx={{ px: 1.25, py: 0.75, borderRadius: 1.5, bgcolor: m.role === 'user' ? 'primary.main' : 'action.hover', color: m.role === 'user' ? 'primary.contrastText' : 'text.primary', maxWidth: '80%' }}>{m.content}</Box>
++              <Box sx={messageBubbleStyles(m.role)}>{m.content}</Box>
+               {m.role === 'user' && <Avatar sx={{ width: 24, height: 24 }}>U</Avatar>}
+             </Stack>
+           ))}
+         </Stack>
+       </Box>
+       <Stack direction="row" spacing={1}>
+         <TextField
+           placeholder="Type your question…"
+           fullWidth
+           size="small"
+           value={input}
+           onChange={(e) => setInput(e.target.value)}
+           onKeyDown={(e) => { if (e.key === 'Enter') onAsk(); }}
+           disabled={busy}
+         />
+         <Tooltip title="Voice input">
+           <span>
+             <IconButton onClick={onMic} disabled={busy}><MicIcon /></IconButton>
+           </span>
+         </Tooltip>
+         <Button variant="contained" endIcon={<SendIcon />} onClick={onAsk} disabled={busy || !input.trim()}>Send</Button>
+       </Stack>
+     </Box>
+   );
+ 
+diff --git a/src/types/i18n.ts b/src/types/i18n.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf283e167fee47d488420ed381e9fcd3a11c59a3
+--- /dev/null
++++ b/src/types/i18n.ts
+@@ -0,0 +1,4 @@
++import type enCommon from '@/locales/en/common.json';
++
++export type Locale = 'en' | 'fa';
++export type CommonDictionary = typeof enCommon;
+diff --git a/src/views/home/components/Hero.tsx b/src/views/home/components/Hero.tsx
+index 9640f38514b05495972ea90b612c384cbceea8a9..206f47012f46158fa3078a89aac49c5e802e33eb 100644
+--- a/src/views/home/components/Hero.tsx
++++ b/src/views/home/components/Hero.tsx
+@@ -1,34 +1,40 @@
+ "use client";
+ 
+ import React from 'react';
+ import { Box, Button, Container, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+ import type { SxProps, Theme } from '@mui/material/styles';
+ import NextLink from 'next/link';
+ import { typographyPresets } from '@/utils/typography';
++import type { CommonDictionary, Locale } from '@/types/i18n';
+ 
+-export default function Hero({ locale, dict }: { locale: 'en' | 'fa'; dict: any }) {
++interface HeroProps {
++  locale: Locale;
++  dict: CommonDictionary;
++}
++
++const Hero: React.FC<HeroProps> = ({ locale, dict }) => {
+   const theme = useTheme();
+   const isMobile = useMediaQuery(theme.breakpoints.down('md'), {
+     defaultMatches: false,
+     noSsr: true
+   });
+ 
+   const heroTitleStyles: SxProps<Theme> = {
+     ...typographyPresets.pageTitle(locale),
+     letterSpacing: locale === 'en' ? -0.5 : 0,
+     fontFamily: locale === 'fa' ? 'var(--font-display-fa)' : 'var(--font-anime-en)',
+     fontSize: { xs: '2rem', sm: '2.5rem', md: '3.5rem', lg: '4rem' },
+     lineHeight: { xs: 1.2, md: 1.1 },
+     color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.text.primary
+   };
+ 
+   const taglineStyles: SxProps<Theme> = {
+     fontFamily: locale === 'fa' ? 'var(--font-body-fa)' : 'var(--font-tech-en)',
+     color: theme.palette.text.secondary
+   };
+ 
+   const subtitleStyles: SxProps<Theme> = {
+     ...typographyPresets.body(locale),
+     fontFamily: locale === 'fa' ? 'var(--font-body-fa)' : 'var(--font-cartoon-en)',
+     color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.8)' : theme.palette.text.secondary
+   };
+@@ -80,26 +86,28 @@ export default function Hero({ locale, dict }: { locale: 'en' | 'fa'; dict: any
+             <Button
+               component={NextLink}
+               href={`/${locale}/solutions`}
+               variant="contained"
+               color="primary"
+               size={isMobile ? 'medium' : 'large'}
+               fullWidth={isMobile}
+             >
+               {dict.explore_solutions}
+             </Button>
+             <Button
+               component={NextLink}
+               href={`/${locale}/contact`}
+               variant="outlined"
+               color="primary"
+               size={isMobile ? 'medium' : 'large'}
+               fullWidth={isMobile}
+             >
+               {dict.contact_now}
+             </Button>
+           </Stack>
+         </Stack>
+       </Container>
+     </Box>
+   );
+-}
++};
++
++export default Hero;
+diff --git a/src/views/home/components/HomeCompositeClient.tsx b/src/views/home/components/HomeCompositeClient.tsx
+index 705b4de3b5307ffdb0e0b865910cbf7d1e212e45..bb45dfbc2ba3bdcceb416967570bfb790df65873 100644
+--- a/src/views/home/components/HomeCompositeClient.tsx
++++ b/src/views/home/components/HomeCompositeClient.tsx
+@@ -1,36 +1,37 @@
+ "use client";
+ 
+ import React from 'react';
+ import dynamic from 'next/dynamic';
++import type { CommonDictionary, Locale } from '@/types/i18n';
+ 
+ const StatsBand = dynamic(() => import('@/views/home/components/StatsBand'), { ssr: false });
+ const HomeSections = dynamic(() => import('@/views/home/components/HomeSections'), { ssr: false });
+ 
+-type Props = {
++interface Props {
+   stats: { value: number | string; label: string }[];
+-  locale: 'en' | 'fa';
+-  dict: any;
++  locale: Locale;
++  dict: CommonDictionary;
+   solutions: any[];
+   capabilities: any[];
+   posts: any[];
+   cases: any[];
+   jobs: any[];
+-};
++}
+ 
+ export default function HomeCompositeClient({ stats, locale, dict, solutions, capabilities, posts, cases, jobs }: Props) {
+   return (
+     <>
+       <StatsBand stats={stats} />
+       <HomeSections
+         locale={locale}
+         dict={dict}
+         solutions={solutions}
+         capabilities={capabilities}
+         posts={posts}
+         cases={cases}
+         jobs={jobs}
+       />
+     </>
+   );
+ }
+ 
+diff --git a/src/views/home/components/HomeSections.tsx b/src/views/home/components/HomeSections.tsx
+index aa0db961a35c60d94e676a1b52e2905f0a43141c..c596a02708feebf9340d1fc419eedf1f5354c098 100644
+--- a/src/views/home/components/HomeSections.tsx
++++ b/src/views/home/components/HomeSections.tsx
+@@ -1,42 +1,43 @@
+ "use client";
+ 
+ import React from 'react';
+ import NextLink from 'next/link';
+ import { Box, Button, Grid, Card, CardActionArea, CardContent, Chip, Stack, Typography, Skeleton } from '@mui/material';
+ import Image from 'next/image';
+ import { typographyPresets } from '@/utils/typography';
++import type { CommonDictionary, Locale } from '@/types/i18n';
+ 
+-type Props = {
+-  locale: 'en' | 'fa';
+-  dict: any;
++interface Props {
++  locale: Locale;
++  dict: CommonDictionary;
+   solutions: any[];
+   capabilities: any[];
+   posts: any[];
+   cases: any[];
+   jobs: any[];
+-};
++}
+ 
+ // Optimized image component with lazy loading
+ const LazyImage = ({ src, alt, width, height, style, priority = false }: {
+   src: string;
+   alt: string;
+   width: number;
+   height: number;
+   style: React.CSSProperties;
+   priority?: boolean;
+ }) => {
+   const [isLoading, setIsLoading] = React.useState(true);
+   const [hasError, setHasError] = React.useState(false);
+   const lang = typeof document !== 'undefined' ? document.documentElement.lang : 'en';
+   const fallbackText = (lang || 'en').startsWith('fa') ? 'تصویر در دسترس نیست' : 'Image not available';
+ 
+   return (
+     <Box sx={{ position: 'relative', ...style }}>
+       {isLoading && (
+         <Skeleton 
+           variant="rectangular" 
+           width="100%" 
+           height="100%" 
+           sx={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} 
+         />
+       )}
+@@ -54,51 +55,51 @@ const LazyImage = ({ src, alt, width, height, style, priority = false }: {
+         onLoad={() => setIsLoading(false)}
+         onError={() => {
+           setIsLoading(false);
+           setHasError(true);
+         }}
+         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+       />
+       {hasError && (
+         <Box 
+           sx={{ 
+             ...style, 
+             display: 'flex', 
+             alignItems: 'center', 
+             justifyContent: 'center',
+             backgroundColor: 'grey.100',
+             color: 'grey.500'
+           }}
+         >
+           <Typography variant="caption">{fallbackText}</Typography>
+         </Box>
+       )}
+     </Box>
+   );
+ };
+ 
+-function SectionHeader({ title, subtitle, action, locale }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; locale: 'en' | 'fa' }) {
++function SectionHeader({ title, subtitle, action, locale }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; locale: Locale }) {
+   return (
+     <Stack 
+       direction={{ xs: 'column', sm: 'row' }} 
+       justifyContent="space-between" 
+       alignItems={{ xs: 'flex-start', sm: 'center' }} 
+       sx={{ mb: 4, gap: 2 }}
+     >
+       <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, width: { xs: '100%', sm: 'auto' } }}>
+         <Typography 
+           variant="h4" 
+           fontWeight={700}
+           sx={{
+             ...typographyPresets.sectionHeader(locale),
+             color: 'primary.main',
+             backgroundImage: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+             backgroundSize: '200% 200%',
+             mb: 1,
+             '@supports (-webkit-background-clip: text)': {
+               WebkitBackgroundClip: 'text',
+               WebkitTextFillColor: 'transparent',
+               color: 'transparent'
+             },
+             '@supports (background-clip: text)': {
+               backgroundClip: 'text',
+               color: 'transparent'
+diff --git a/src/views/home/index.tsx b/src/views/home/index.tsx
+index 1256df16c0616a946ae3d500b5b0d7096560fe91..11f3e7f084b007051b641ed61e77507ce284e471 100644
+--- a/src/views/home/index.tsx
++++ b/src/views/home/index.tsx
+@@ -1,56 +1,57 @@
+ import React from 'react';
+ import { Container } from '@mui/material';
+ import { usePathname } from 'next/navigation';
+ import dynamic from 'next/dynamic';
+ import Hero from './components/Hero';
+ import enCommon from '@/locales/en/common.json';
+ import faCommon from '@/locales/fa/common.json';
+ import StatsBand from './components/StatsBand';
++import type { CommonDictionary, Locale } from '@/types/i18n';
+ 
+ // Lazy load non-critical components for better performance
+ const SolutionsGrid = dynamic(() => import('./components/SolutionsGrid'), { 
+   loading: () => <div>Loading...</div> 
+ });
+ const CapabilitiesSection = dynamic(() => import('./components/CapabilitiesSection'), { 
+   loading: () => <div>Loading...</div> 
+ });
+ const MembershipSection = dynamic(() => import('./components/MembershipSection'), { 
+   loading: () => <div>Loading...</div> 
+ });
+ const StudentActivities = dynamic(() => import('./components/StudentActivities'), { 
+   loading: () => <div>Loading...</div> 
+ });
+ const EventsCalendar = dynamic(() => import('./components/EventsCalendar'), { 
+   loading: () => <div>Loading...</div> 
+ });
+ const NewsAndAchievements = dynamic(() => import('./components/NewsAndAchievements'), { 
+   loading: () => <div>Loading...</div> 
+ });
+ 
+ export default function HomeView() {
+   const pathname = usePathname();
+   const parts = (pathname || '/').split('/').filter(Boolean);
+-  const locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'fa';
+-  const dict = (locale === 'fa' ? (faCommon as any) : (enCommon as any));
++  const locale: Locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'fa';
++  const dict: CommonDictionary = locale === 'fa' ? faCommon : enCommon;
+   const stats = [
+     { value: '150+', label: locale === 'fa' ? 'دانشجویان عضو' : 'Student Members' },
+     { value: '25+', label: locale === 'fa' ? 'پروژه‌های پژوهشی' : 'Research Projects' },
+     { value: '12+', label: locale === 'fa' ? 'مقالات علمی' : 'Scientific Papers' },
+     { value: '8+', label: locale === 'fa' ? 'سال فعالیت' : 'Years Active' }
+   ];
+ 
+   return (
+     <>
+-      <Hero locale={locale as 'en' | 'fa'} dict={dict} />
++      <Hero locale={locale} dict={dict} />
+       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 } }}>
+         <StatsBand stats={stats} />
+         <SolutionsGrid />
+         <StudentActivities />
+         <EventsCalendar />
+         <NewsAndAchievements />
+         <CapabilitiesSection />
+         <MembershipSection />
+       </Container>
+     </>
+   );
+ }
+ 
+EOF
+)
