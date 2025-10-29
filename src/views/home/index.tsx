@@ -32,7 +32,7 @@ export default function HomeView() {
   const pathname = usePathname();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale: Locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'fa';
-  const dict: CommonDictionary = locale === 'fa' ? faCommon : enCommon;
+  const dict = (locale === 'fa' ? faCommon : enCommon) as CommonDictionary;
   const stats = [
     { value: '150+', label: locale === 'fa' ? 'دانشجویان عضو' : 'Student Members' },
     { value: '25+', label: locale === 'fa' ? 'پروژه‌های پژوهشی' : 'Research Projects' },

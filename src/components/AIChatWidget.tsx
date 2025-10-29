@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Box, IconButton, Drawer, Stack, TextField, Button, Typography, Tooltip, Avatar } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
@@ -14,20 +15,35 @@ type Msg = { role: Role; content: string };
 
 const createMessage = (role: Role, content: string): Msg => ({ role, content });
 
-const messageStackStyles = (role: Role): SxProps<Theme> => ({
-  justifyContent: role === 'user' ? 'flex-end' : 'flex-start'
-});
+const DrawerContent = styled(Box)(({ theme }) => ({
+  width: 420,
+  padding: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    width: 360
+  }
+}));
 
-const messageBubbleStyles = (role: Role): SxProps<Theme> => ({
-  px: 1.25,
-  py: 0.75,
-  borderRadius: 1.5,
-  bgcolor: role === 'user' ? 'primary.main' : 'action.hover',
-  color: role === 'user' ? 'primary.contrastText' : 'text.primary',
+const MessagesContainer = styled(Box)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1),
+  height: 360,
+  overflowY: 'auto',
+  marginBottom: theme.spacing(1)
+}));
+
+const MessageBubble = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'owner'
+})<{ owner: Role }>(({ theme, owner }) => ({
+  padding: theme.spacing(0.75, 1.25),
+  borderRadius: theme.shape.borderRadius * 1.5,
+  backgroundColor: owner === 'user' ? theme.palette.primary.main : theme.palette.action.hover,
+  color: owner === 'user' ? theme.palette.primary.contrastText : theme.palette.text.primary,
   maxWidth: '80%'
-});
+}));
 
 export default function AIChatWidget() {
+  const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [input, setInput] = React.useState('');
   const [busy, setBusy] = React.useState(false);
@@ -93,7 +109,7 @@ export default function AIChatWidget() {
   };
 
   const content = (
-    <Box sx={{ width: { xs: 360, sm: 420 }, p: 2 }} role="dialog" aria-label="AI Assistant">
+    <DrawerContent role="dialog" aria-label="AI Assistant">
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Typography variant="h6" fontWeight={700}>IEEE Assistant</Typography>
         <Stack direction="row" spacing={1} alignItems="center">
@@ -108,7 +124,7 @@ export default function AIChatWidget() {
           <Button key={p} onClick={() => preset(p)} size="small" variant="outlined">{p}</Button>
         ))}
       </Stack>
-      <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1, height: 360, overflowY: 'auto', mb: 1 }}>
+      <MessagesContainer>
         <Stack spacing={1.5}>
           {messages.map((m, i) => (
             <Stack
@@ -116,15 +132,15 @@ export default function AIChatWidget() {
               direction="row"
               spacing={1}
               alignItems="flex-start"
-              sx={messageStackStyles(m.role)}
+              sx={{ justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}
             >
               {m.role === 'assistant' && <Avatar sx={{ width: 24, height: 24 }}>A</Avatar>}
-              <Box sx={messageBubbleStyles(m.role)}>{m.content}</Box>
+              <MessageBubble owner={m.role}>{m.content}</MessageBubble>
               {m.role === 'user' && <Avatar sx={{ width: 24, height: 24 }}>U</Avatar>}
             </Stack>
           ))}
         </Stack>
-      </Box>
+      </MessagesContainer>
       <Stack direction="row" spacing={1}>
         <TextField
           placeholder="Type your question…"
@@ -142,19 +158,19 @@ export default function AIChatWidget() {
         </Tooltip>
         <Button variant="contained" endIcon={<SendIcon />} onClick={onAsk} disabled={busy || !input.trim()}>Send</Button>
       </Stack>
-    </Box>
+    </DrawerContent>
   );
 
   return (
     <>
       <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>{content}</Drawer>
-      <Box sx={{ position: 'fixed', right: 16, bottom: 16, zIndex: (theme: any) => theme.zIndex.fab }}>
+      <div style={{ position: 'fixed', right: 16, bottom: 16, zIndex: theme.zIndex.fab }}>
         <Tooltip title="Chat with IEEE Assistant">
           <IconButton color="primary" sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'primary.dark' } }} onClick={() => setOpen(true)} aria-label="open ai chat">
             <ChatIcon />
           </IconButton>
         </Tooltip>
-      </Box>
+      </div>
     </>
   );
 }

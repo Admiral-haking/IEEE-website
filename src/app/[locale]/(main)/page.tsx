@@ -13,9 +13,13 @@ import { buildListMetadata } from '@/lib/metadata';
 import type { CommonDictionary, Locale } from '@/types/i18n';
 
 async function getDict(locale: Locale): Promise<CommonDictionary> {
-  return locale === 'fa'
-    ? (await import('@/locales/fa/common.json')).default
-    : (await import('@/locales/en/common.json')).default;
+  if (locale === 'fa') {
+    const faDict = (await import('@/locales/fa/common.json')).default;
+    return faDict as CommonDictionary;
+  }
+
+  const enDict = (await import('@/locales/en/common.json')).default;
+  return enDict;
 }
 
 export default async function HomePage({ params }: { params: { locale: Locale } }) {
