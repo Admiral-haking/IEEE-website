@@ -6,6 +6,7 @@ import Hero from './components/Hero';
 import enCommon from '@/locales/en/common.json';
 import faCommon from '@/locales/fa/common.json';
 import StatsBand from './components/StatsBand';
+type CommonDict = typeof enCommon;
 
 // Lazy load non-critical components for better performance
 const SolutionsGrid = dynamic(() => import('./components/SolutionsGrid'), { 
@@ -31,13 +32,13 @@ export default function HomeView() {
   const pathname = usePathname();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'fa';
-  const dict = (locale === 'fa' ? (faCommon as any) : (enCommon as any));
+  const dict: Partial<CommonDict> = (locale === 'fa' ? (faCommon as Partial<CommonDict>) : enCommon);
   const stats = [
-    { value: '150+', label: locale === 'fa' ? 'دانشجویان عضو' : 'Student Members' },
-    { value: '25+', label: locale === 'fa' ? 'پروژه‌های پژوهشی' : 'Research Projects' },
-    { value: '12+', label: locale === 'fa' ? 'مقالات علمی' : 'Scientific Papers' },
-    { value: '8+', label: locale === 'fa' ? 'سال فعالیت' : 'Years Active' }
-  ];
+  { value: '150+', label: (dict?.stats_projects ?? enCommon.stats_projects) },
+  { value: '25+', label: (dict?.stats_blog_posts ?? enCommon.stats_blog_posts) },
+  { value: '12+', label: (dict?.stats_case_studies ?? enCommon.stats_case_studies) },
+  { value: '8+', label: (dict?.stats_jobs ?? enCommon.stats_jobs) }
+];
 
   return (
     <>
