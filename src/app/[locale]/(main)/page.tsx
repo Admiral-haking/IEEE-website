@@ -10,13 +10,16 @@ import { Container } from '@mui/material';
 import HomeCompositeClient from '@/views/home/components/HomeCompositeClient';
 import type { Metadata } from 'next';
 import { buildListMetadata } from '@/lib/metadata';
+import type { CommonDictionary, Locale } from '@/types/i18n';
 
-async function getDict(locale: 'en' | 'fa') {
-  return locale === 'fa' ? (await import('@/locales/fa/common.json')).default : (await import('@/locales/en/common.json')).default;
+async function getDict(locale: Locale): Promise<CommonDictionary> {
+  return locale === 'fa'
+    ? (await import('@/locales/fa/common.json')).default
+    : (await import('@/locales/en/common.json')).default;
 }
 
-export default async function HomePage({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }) {
-  const { locale } = await params;
+export default async function HomePage({ params }: { params: { locale: Locale } }) {
+  const { locale } = params;
   const dict = await getDict(locale);
   
   // Ensure database connection is established before making queries
@@ -75,8 +78,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: '
   );
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }): Promise<Metadata> {
-  const { locale } = await params;
+export async function generateMetadata({ params }: { params: { locale: Locale } }): Promise<Metadata> {
+  const { locale } = params;
   const dict = await getDict(locale);
   return buildListMetadata({
     locale,

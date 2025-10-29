@@ -5,16 +5,17 @@ import NextLink from 'next/link';
 import { Box, Button, Grid, Card, CardActionArea, CardContent, Chip, Stack, Typography, Skeleton } from '@mui/material';
 import Image from 'next/image';
 import { typographyPresets } from '@/utils/typography';
+import type { CommonDictionary, Locale } from '@/types/i18n';
 
-type Props = {
-  locale: 'en' | 'fa';
-  dict: any;
+interface Props {
+  locale: Locale;
+  dict: CommonDictionary;
   solutions: any[];
   capabilities: any[];
   posts: any[];
   cases: any[];
   jobs: any[];
-};
+}
 
 // Optimized image component with lazy loading
 const LazyImage = ({ src, alt, width, height, style, priority = false }: {
@@ -76,7 +77,7 @@ const LazyImage = ({ src, alt, width, height, style, priority = false }: {
   );
 };
 
-function SectionHeader({ title, subtitle, action, locale }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; locale: 'en' | 'fa' }) {
+function SectionHeader({ title, subtitle, action, locale }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; locale: Locale }) {
   return (
     <Stack 
       direction={{ xs: 'column', sm: 'row' }} 
