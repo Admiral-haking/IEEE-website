@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box } from "@mui/material";
+// MUI Box avoided to reduce TS union complexity in animated nodes
 
 /**
  * CSSVideoBackgroundWithBlur
@@ -16,6 +16,14 @@ type Props = {
 
 export default function CSSVideoBackground({ sources }: Props) {
   const [particles, setParticles] = useState<JSX.Element[]>([]);
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }, []);
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  }, []);
   const playlist = useMemo(() => (sources && sources.length > 0 ? sources : [
     "/videos/campus.mp4"
   ]), [sources]);
@@ -30,34 +38,35 @@ export default function CSSVideoBackground({ sources }: Props) {
 
   // ✅ Generate random floating particles on client - optimized for desktop
   useEffect(() => {
-    const newParticles = Array.from({ length: 15 }).map((_, i) => {
+    const count = prefersReducedMotion ? 0 : (isMobile ? 6 : 12);
+    const newParticles = Array.from({ length: count }).map((_, i) => {
       const left = Math.random() * 100;
       const top = Math.random() * 100;
-      const size = 1.5 + Math.random() * 3;
-      const duration = 8 + Math.random() * 6;
+      const size = isMobile ? 1 + Math.random() * 2 : 1.5 + Math.random() * 3;
+      const duration = prefersReducedMotion ? 0 : (isMobile ? 10 + Math.random() * 6 : 8 + Math.random() * 6);
       const delay = Math.random() * 8;
 
       return (
-        <Box
+        <div
           key={i}
-          sx={{
-            position: "absolute",
+          style={{
+            position: 'absolute',
             width: `${size}px`,
             height: `${size}px`,
-            background: "rgba(255,255,255,0.4)",
-            borderRadius: "50%",
+            background: 'rgba(255,255,255,0.4)',
+            borderRadius: '50%',
             left: `${left}%`,
             top: `${top}%`,
-            transform: "translateZ(0)",
-            animation: `float ${duration}s ease-in-out infinite`,
+            transform: 'translateZ(0)',
+            animation: duration ? `float ${duration}s ease-in-out infinite` : 'none',
             animationDelay: `${delay}s`,
-            willChange: "transform, opacity",
+            willChange: 'transform, opacity'
           }}
         />
       );
     });
     setParticles(newParticles);
-  }, []);
+  }, [prefersReducedMotion, isMobile]);
 
   // Prepare next video source in the hidden buffer
   const preloadNext = useCallback((nextIndex: number) => {
@@ -185,16 +194,38 @@ export default function CSSVideoBackground({ sources }: Props) {
     return () => { currentRef.removeEventListener('ended', swapToNext); };
   }, [swapToNext, useAasCurrent]);
 
+  // Pause playback when offscreen to save CPU
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!rootRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        const currentRef = useAasCurrent ? videoARef.current : videoBRef.current;
+        if (!currentRef) return;
+        if (entry.isIntersecting) {
+          safePlay(currentRef);
+        } else {
+          try { currentRef.pause(); } catch {}
+        }
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(rootRef.current);
+    return () => observer.disconnect();
+  }, [useAasCurrent, safePlay]);
+
   return (
-    <Box
-      sx={{
-        position: "absolute",
+    <div
+      ref={rootRef}
+      style={{
+        position: 'absolute',
         top: 0,
         left: 0,
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-        zIndex: -1,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        zIndex: -1
       }}
     >
       {/* 🎥 Double-buffered video backgrounds for gapless playback */}
@@ -214,7 +245,7 @@ export default function CSSVideoBackground({ sources }: Props) {
               height: "100%",
               objectFit: "cover",
               transform: "translate(-50%, -50%)",
-              filter: "blur(12px) brightness(0.7)",
+              filter: `${isMobile ? 'blur(6px)' : 'blur(12px)'} brightness(${prefersReducedMotion ? 0.8 : 0.7})`,
               zIndex: useAasCurrent ? -2 : -3,
               opacity: useAasCurrent ? 1 : 0,
               transition: "opacity 200ms ease-out",
@@ -234,7 +265,7 @@ export default function CSSVideoBackground({ sources }: Props) {
               height: "100%",
               objectFit: "cover",
               transform: "translate(-50%, -50%)",
-              filter: "blur(12px) brightness(0.7)",
+              filter: `${isMobile ? 'blur(6px)' : 'blur(12px)'} brightness(${prefersReducedMotion ? 0.8 : 0.7})`,
               zIndex: useAasCurrent ? -3 : -2,
               opacity: useAasCurrent ? 0 : 1,
               transition: "opacity 200ms ease-out",
@@ -245,16 +276,16 @@ export default function CSSVideoBackground({ sources }: Props) {
 
       {/* 🌈 Gradient overlay (only when no video available) */}
       {!videoVisible && (
-        <Box
-          sx={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
+        <div
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
             background:
-              "linear-gradient(135deg, rgba(25,118,210,0.6), rgba(156,39,176,0.5), rgba(76,175,80,0.3), rgba(233,30,99,0.6))",
-            backgroundSize: "300% 300%",
-            animation: "gradientShift 25s ease infinite",
-            zIndex: -1,
+              'linear-gradient(135deg, rgba(25,118,210,0.6), rgba(156,39,176,0.5), rgba(76,175,80,0.3), rgba(233,30,99,0.6))',
+            backgroundSize: '300% 300%',
+            animation: 'gradientShift 25s ease infinite',
+            zIndex: -1
           }}
         />
       )}
@@ -300,6 +331,6 @@ export default function CSSVideoBackground({ sources }: Props) {
           }
         }
       `}</style>
-    </Box>
+    </div>
   );
 }

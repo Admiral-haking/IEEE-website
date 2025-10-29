@@ -49,8 +49,8 @@ export default function TopProgressBar() {
 
   if (!visible) return null;
   return (
-    <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: (t: any) => t.zIndex.tooltip + 1 }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 2000 }}>
       <LinearProgress color="secondary" variant="determinate" value={value} sx={{ height: 3 }} />
-    </Box>
+    </div>
   );
 }

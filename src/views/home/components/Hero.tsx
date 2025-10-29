@@ -4,11 +4,9 @@ import React from 'react';
 import { Box, Button, Container, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
 import NextLink from 'next/link';
-import { useTranslation } from 'react-i18next';
 import { typographyPresets } from '@/utils/typography';
 
-export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
-  const { t } = useTranslation('common');
+export default function Hero({ locale, dict }: { locale: 'en' | 'fa'; dict: any }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'), {
     defaultMatches: false,
@@ -50,7 +48,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
       <Container maxWidth="lg">
         <Stack gap={{ xs: 3, md: 4 }} alignItems="center" textAlign="center">
           <Typography variant="h1" component="h1" sx={heroTitleStyles}>
-            {t('title')}
+            {dict.title}
           </Typography>
           <Typography
             variant="h2"
@@ -61,7 +59,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
               ...taglineStyles
             }}
           >
-            {t('tagline')}
+            {dict.tagline}
           </Typography>
           <Typography
             variant="body1"
@@ -72,7 +70,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
               ...subtitleStyles
             }}
           >
-            {t('home_subtitle')}
+            {dict.home_subtitle}
           </Typography>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -87,7 +85,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
               size={isMobile ? 'medium' : 'large'}
               fullWidth={isMobile}
             >
-              {t('explore_solutions')}
+              {dict.explore_solutions}
             </Button>
             <Button
               component={NextLink}
@@ -97,7 +95,7 @@ export default function Hero({ locale }: { locale: 'en' | 'fa' }) {
               size={isMobile ? 'medium' : 'large'}
               fullWidth={isMobile}
             >
-              {t('contact_now')}
+              {dict.contact_now}
             </Button>
           </Stack>
         </Stack>

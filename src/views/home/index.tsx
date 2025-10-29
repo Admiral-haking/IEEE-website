@@ -3,6 +3,8 @@ import { Container } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Hero from './components/Hero';
+import enCommon from '@/locales/en/common.json';
+import faCommon from '@/locales/fa/common.json';
 import StatsBand from './components/StatsBand';
 
 // Lazy load non-critical components for better performance
@@ -29,6 +31,7 @@ export default function HomeView() {
   const pathname = usePathname();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'fa';
+  const dict = (locale === 'fa' ? (faCommon as any) : (enCommon as any));
   const stats = [
     { value: '150+', label: locale === 'fa' ? 'دانشجویان عضو' : 'Student Members' },
     { value: '25+', label: locale === 'fa' ? 'پروژه‌های پژوهشی' : 'Research Projects' },
@@ -38,7 +41,7 @@ export default function HomeView() {
 
   return (
     <>
-      <Hero locale={locale as 'en' | 'fa'} />
+      <Hero locale={locale as 'en' | 'fa'} dict={dict} />
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 } }}>
         <StatsBand stats={stats} />
         <SolutionsGrid />

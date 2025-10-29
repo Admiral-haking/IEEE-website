@@ -4,31 +4,32 @@ import React from 'react';
 import { Breadcrumbs, Container, Link, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import enCommon from '@/locales/en/common.json';
+import faCommon from '@/locales/fa/common.json';
 
-function labelFor(seg: string, t: (k: string) => string) {
+function labelFor(seg: string, dict: Record<string, any>) {
   const map: Record<string, string> = {
-    admin: t('dashboard'),
-    users: t('users'),
-    solutions: t('solutions'),
-    capabilities: t('capabilities'),
-    team: t('team'),
-    blog: t('blog'),
-    'case-studies': t('case_studies'),
-    jobs: t('jobs'),
-    contact: t('contact'),
-    privacy: t('privacy'),
-    terms: t('terms')
+    admin: dict.dashboard,
+    users: dict.users,
+    solutions: dict.solutions,
+    capabilities: dict.capabilities,
+    team: dict.team,
+    blog: dict.blog,
+    'case-studies': dict.case_studies,
+    jobs: dict.jobs,
+    contact: dict.contact,
+    privacy: dict.privacy,
+    terms: dict.terms
   };
   return map[seg] || seg;
 }
 
 export default function BreadcrumbsNav() {
   const pathname = usePathname();
-  const { t } = useTranslation();
   const parts = (pathname || '/').split('/').filter(Boolean);
   if (parts.length <= 1) return null; // only locale present
   const locale = parts[0];
+  const dict = locale === 'fa' ? (faCommon as any) : (enCommon as any);
   const trail = parts.slice(1);
   const acc: { href: string; seg: string }[] = [];
   trail.reduce((href, seg) => {
@@ -40,10 +41,10 @@ export default function BreadcrumbsNav() {
   return (
     <Container sx={{ pt: 1.5 }}>
       <Breadcrumbs aria-label="breadcrumbs">
-        <Link component={NextLink} href={`/${locale}`}>{t('home')}</Link>
+        <Link component={NextLink} href={`/${locale}`}>{dict.home}</Link>
         {acc.map((c, idx) => {
           const isLast = idx === acc.length - 1;
-          const label = labelFor(c.seg, t);
+          const label = labelFor(c.seg, dict);
           return isLast ? (
             <Typography key={c.href} color="text.secondary">{label}</Typography>
           ) : (

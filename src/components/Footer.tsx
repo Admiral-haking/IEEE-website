@@ -4,13 +4,14 @@ import React from 'react';
 import { Box, Container, Divider, Link, Stack, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import enCommon from '@/locales/en/common.json';
+import faCommon from '@/locales/fa/common.json';
 
 export default function Footer() {
   const pathname = usePathname();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'en';
-  const { t } = useTranslation();
+  const dict = (parts[0] === 'fa' ? (faCommon as any) : (enCommon as any));
   return (
     <Box
       component="footer"
@@ -41,10 +42,10 @@ export default function Footer() {
             © {new Date().getFullYear()} {locale === 'fa' ? 'انجمن علمی مهندسی کامپیوتر' : 'Computer Engineering Association'}
           </Typography>
           <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-            <Link component={NextLink} href={`/${locale}/privacy`} color="text.secondary">{t('privacy')}</Link>
-            <Link component={NextLink} href={`/${locale}/terms`} color="text.secondary">{t('terms')}</Link>
-            <Link component={NextLink} href={`/${locale}/contact`} color="text.secondary">{t('contact')}</Link>
-            <Link component={NextLink} href={`/${locale}/signin`} color="text.secondary">{t('sign_in')}</Link>
+            <Link component={NextLink} href={`/${locale}/privacy`} color="text.secondary">{dict.privacy}</Link>
+            <Link component={NextLink} href={`/${locale}/terms`} color="text.secondary">{dict.terms}</Link>
+            <Link component={NextLink} href={`/${locale}/contact`} color="text.secondary">{dict.contact}</Link>
+            <Link component={NextLink} href={`/${locale}/signin`} color="text.secondary">{dict.sign_in}</Link>
           </Stack>
         </Stack>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center', fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>

@@ -11,6 +11,8 @@ interface GlitchTextProps {
   className?: string;
   variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   sx?: any;
+  disableEffects?: boolean;
+  color?: string;
 }
 
 export default function GlitchText({
@@ -20,7 +22,9 @@ export default function GlitchText({
   enableOnHover = true,
   className = '',
   variant = 'h1',
-  sx = {}
+  sx = {},
+  disableEffects = false,
+  color
 }: GlitchTextProps) {
   const [isGlitching, setIsGlitching] = useState(false);
 
@@ -51,7 +55,26 @@ export default function GlitchText({
   const primaryGradient = 'linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4)';
   const secondaryGradient = 'linear-gradient(45deg, #96CEB4, #FFEAA7, #DDA0DD, #FF6B6B)';
 
-  const glitchStyles = {
+  if (disableEffects) {
+    const style: React.CSSProperties = {
+      position: 'relative',
+      display: 'inline-block',
+      fontFamily: 'inherit',
+      fontWeight: 700,
+      color: color || 'inherit',
+      cursor: 'default',
+      ...(sx as any)
+    };
+    return (
+      <span className={className} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} style={style}>
+        <Typography variant={variant} component="span" color={color || 'inherit'}>
+          {children}
+        </Typography>
+      </span>
+    );
+  }
+
+  const glitchStyles: any = {
     position: 'relative',
     display: 'inline-block',
     fontFamily: 'var(--font-tech-en), monospace',

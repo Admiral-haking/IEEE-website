@@ -15,8 +15,8 @@ async function getDict(locale: 'en' | 'fa') {
   return locale === 'fa' ? (await import('@/locales/fa/common.json')).default : (await import('@/locales/en/common.json')).default;
 }
 
-export default async function HomePage({ params }: { params: { locale: 'en' | 'fa' } }) {
-  const { locale } = params;
+export default async function HomePage({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }) {
+  const { locale } = await params;
   const dict = await getDict(locale);
   
   // Ensure database connection is established before making queries
@@ -53,7 +53,7 @@ export default async function HomePage({ params }: { params: { locale: 'en' | 'f
 
   return (
     <>
-      <Hero locale={locale} />
+      <Hero locale={locale} dict={dict} />
       <Container sx={{ py: { xs: 6, md: 10 } }}>
         <HomeCompositeClient
           stats={[
@@ -75,8 +75,8 @@ export default async function HomePage({ params }: { params: { locale: 'en' | 'f
   );
 }
 
-export async function generateMetadata({ params }: { params: { locale: 'en'|'fa' } }): Promise<Metadata> {
-  const { locale } = params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: 'en' | 'fa' }> }): Promise<Metadata> {
+  const { locale } = await params;
   const dict = await getDict(locale);
   return buildListMetadata({
     locale,

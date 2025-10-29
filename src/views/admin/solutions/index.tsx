@@ -24,7 +24,7 @@ export default function SolutionsAdminView() {
   const pathname = usePathname();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale = parts[0] === 'en' || parts[0] === 'fa' ? (parts[0] as 'en'|'fa') : 'en';
-  const [{ data }, refetch] = useAxios({ url: '/api/solutions', params: { q: query, page: page + 1, pageSize: rowsPerPage, locale } });
+  const [{ data }, refetch] = useAxios<{ items: Row[]; total: number }>({ url: '/api/solutions', params: { q: query, page: page + 1, pageSize: rowsPerPage, locale } });
   const [, createReq] = useAxios({ url: '/api/solutions', method: 'POST' }, { manual: true });
   const [, updateReq] = useAxios({ method: 'PATCH' }, { manual: true });
   const [, deleteReq] = useAxios({ method: 'DELETE' }, { manual: true });
@@ -44,39 +44,62 @@ export default function SolutionsAdminView() {
     await refetch();
   };
 
-  return (
-    <Container sx={{ py: 3 }}>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }} justifyContent="space-between" mb={2}>
-        <Box>
-          <Typography variant="h5" fontWeight={700}>{t('solutions')}</Typography>
-          <Typography variant="body2" color="text.secondary">{t('solutions_admin_sub')}</Typography>
-        </Box>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-          <TextField size="small" placeholder={t('search_solutions') as string} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') refetch(); }} />
-          <Button variant="contained" color="secondary" onClick={onAdd}>{t('add_solution')}</Button>
-        </Stack>
-      </Stack>
+  // Precompute texts to avoid complex union type inference in JSX
+  const tSolutions = String(t('solutions'));
+  const tSolutionsSub = String(t('solutions_admin_sub'));
+  const tSearchSolutions = String(t('search_solutions'));
+  const tTitleLabel = String(t('title_label'));
+  const tCategoryLabel = String(t('category_label'));
+  const tPublished = String(t('published'));
+  const tActions = String(t('actions'));
+  const tYes = String(t('yes'));
+  const tNo = String(t('no'));
+  const tEdit = String(t('edit'));
+  const tDelete = String(t('delete'));
+  const tDeleteTitle = String(t('delete_solution_title'));
+  const tDeleteMessage = String(t('delete_solution_message'));
 
+  const headerBox = (
+    <div>
+      <h5 style={{ fontWeight: 700, margin: 0 }}>{tSolutions}</h5>
+      <p style={{ margin: 0, opacity: 0.7 }}>{tSolutionsSub}</p>
+    </div>
+  ) as any;
+
+  const header = (
+    <Stack spacing={2} sx={{ flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', mb: 2 }}>
+      {headerBox}
+      <Stack spacing={1.5} sx={{ flexDirection: { xs: 'column', sm: 'row' } }}>
+        <TextField size="small" placeholder={tSearchSolutions} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') refetch(); }} />
+        <Button variant="contained" color="secondary" onClick={onAdd}>{t('add_solution')}</Button>
+      </Stack>
+    </Stack>
+  ) as any;
+
+  const contentEl: any = (
+    <Container sx={{ py: 3 }}>
+      {header}
+      
       <TableContainer>
         <Table size="medium">
           <TableHead>
             <TableRow>
-              <TableCell>{t('title_label')}</TableCell>
-              <TableCell>{t('category_label')}</TableCell>
-              <TableCell>{t('published')}</TableCell>
-              <TableCell align="right">{t('actions')}</TableCell>
+              <TableCell>{tTitleLabel}</TableCell>
+              <TableCell>{tCategoryLabel}</TableCell>
+              <TableCell>{tPublished}</TableCell>
+              <TableCell align="right">{tActions}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {items.map((row) => (
               <TableRow key={row.id} hover>
                 <TableCell>{row.title}</TableCell>
-                <TableCell><Chip label={t(row.category)} size="small" /></TableCell>
-                <TableCell>{row.published ? t('yes') : t('no')}</TableCell>
+                <TableCell><Chip label={String(t(row.category))} size="small" /></TableCell>
+                <TableCell>{row.published ? tYes : tNo}</TableCell>
                 <TableCell align="right">
                   <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                    <Tooltip title={t('edit') as string}><IconButton size="small" onClick={() => onEdit(row)}><EditIcon fontSize="small" /></IconButton></Tooltip>
-                    <Tooltip title={t('delete') as string}><IconButton size="small" onClick={() => setConfirm({ open: true, row })}><DeleteIcon fontSize="small" /></IconButton></Tooltip>
+                    <Tooltip title={tEdit}><IconButton size="small" onClick={() => onEdit(row)}><EditIcon fontSize="small" /></IconButton></Tooltip>
+                    <Tooltip title={tDelete}><IconButton size="small" onClick={() => setConfirm({ open: true, row })}><DeleteIcon fontSize="small" /></IconButton></Tooltip>
                   </Stack>
                 </TableCell>
               </TableRow>
@@ -87,8 +110,9 @@ export default function SolutionsAdminView() {
       <TablePagination component="div" count={total} page={page} onPageChange={( _evt: unknown, p: number ) => setPage(p)} rowsPerPage={rowsPerPage} onRowsPerPageChange={(e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }} />
 
       <SolutionDialog open={open} onClose={() => setOpen(false)} initial={initial} onSubmit={onSubmit} />
-      <ConfirmDialog open={confirm.open} onClose={() => setConfirm({ open: false })} onConfirm={async () => { if (confirm.row) await onDelete(confirm.row); }} title={t('delete_solution_title')} message={t('delete_solution_message')} />
+      <ConfirmDialog open={confirm.open} onClose={() => setConfirm({ open: false })} onConfirm={async () => { if (confirm.row) await onDelete(confirm.row); }} title={tDeleteTitle} message={tDeleteMessage} />
     </Container>
   );
-}
 
+  return contentEl as JSX.Element;
+}

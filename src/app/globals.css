@@ -242,6 +242,16 @@ body:not(.dark)::before {
   background: rgba(0,0,0,0.1);
 }
 
+/* Navbar images styling (move away from inline styles) */
+.navbar-logo-img {
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+.navbar-drawer-logo-img {
+  width: auto;
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(25,118,210,0.5);
   border-radius: 4px;
@@ -268,6 +278,15 @@ body, a, button, input, textarea, select,
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+/* Respect reduced motion: disable non-essential animations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -65,7 +65,14 @@ export default function LanguageToggle() {
     } else {
       path = `/${code}/${parts.join('/')}`;
     }
-    router.push(path as any);
+    // Update HTML attributes immediately to prevent flicker and ensure direction
+    try {
+      const html = document.documentElement;
+      html.lang = code === 'fa' ? 'fa-IR' : 'en';
+      html.dir = code === 'fa' ? 'rtl' : 'ltr';
+      document.body.setAttribute('lang', code);
+    } catch {}
+    router.replace(path as any);
     handleClose();
   };
 

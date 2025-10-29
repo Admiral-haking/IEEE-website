@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Box, CircularProgress, Fade, Stack, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useColorScheme } from '@mui/joy/styles';
 import Image from 'next/image';
 const logoLight = '/logo.png';
@@ -11,6 +12,7 @@ export default function SplashScreen() {
   const [visible, setVisible] = React.useState(true);
   const [mounted, setMounted] = React.useState(false);
   const { mode } = useColorScheme();
+  const theme = useTheme();
 
   React.useEffect(() => {
     setMounted(true);
@@ -27,32 +29,27 @@ export default function SplashScreen() {
   // Use light logo as default to match server-side rendering
   const logo = mounted && mode === 'dark' ? logoDark : logoLight;
 
+  const rootStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: (theme?.zIndex?.modal ?? 1500) + 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.palette.background.default
+  };
   return (
     <Fade in={visible} timeout={{ enter: 100, exit: 400 }} unmountOnExit>
-      <Box
-        aria-label="Loading"
-        role="status"
-        sx={{
-          position: 'fixed', inset: 0, zIndex: (t: any) => t.zIndex.modal + 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          bgcolor: 'background.default'
-        }}
-      >
+      <div aria-label="Loading" role="status" style={rootStyle}>
         <Stack gap={2} alignItems="center">
-          <Image 
-            src={logo} 
-            alt="Hippogriff logo" 
-            width={48}
-            height={48} 
-            style={{ 
-              width: 'auto',
-              transition: 'opacity 0.2s ease-in-out'
-            }} 
-          />
+          {/* Removed image for snappier load */}
           <Typography variant="body2" color="text.secondary">Loading…</Typography>
           <CircularProgress size={20} thickness={5} color="secondary" />
         </Stack>
-      </Box>
+      </div>
     </Fade>
   );
 }

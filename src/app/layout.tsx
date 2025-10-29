@@ -86,8 +86,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cookieLocale = cookieStore.get('hippo_language')?.value;
   const locale: 'en' | 'fa' = cookieLocale === 'fa' ? 'fa' : 'en';
   const dir = locale === 'fa' ? 'rtl' : 'ltr';
+  const langAttr = locale === 'fa' ? 'fa-IR' : 'en';
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning className={`${inter.variable} ${bebas.variable} ${orbitron.variable} ${exo2.variable} ${rajdhani.variable} ${vazirmatn.variable} ${lalezar.variable} ${bitcountFallback.variable}`}>
+    <html lang={langAttr} dir={dir} suppressHydrationWarning className={`${inter.variable} ${bebas.variable} ${orbitron.variable} ${exo2.variable} ${rajdhani.variable} ${vazirmatn.variable} ${lalezar.variable} ${bitcountFallback.variable}`}>
       <head>
         {/* Windows font optimization */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

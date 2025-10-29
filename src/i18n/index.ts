@@ -11,7 +11,7 @@ export function ensureI18n() {
   if (!initialized && !i18n.isInitialized) {
     // Derive initial language from <html lang> on client to avoid hydration mismatches
     const initialLng = typeof window !== 'undefined'
-      ? (document.documentElement.lang === 'fa' ? 'fa' : 'en')
+      ? (document.documentElement.lang?.startsWith('fa') ? 'fa' : 'en')
       : 'en';
     i18n
       .use(LanguageDetector)

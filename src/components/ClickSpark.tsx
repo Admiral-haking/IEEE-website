@@ -24,6 +24,7 @@ export default function ClickSpark({
   style = {}
 }: ClickSparkProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const createSpark = useCallback((x: number, y: number) => {
     const container = containerRef.current;
@@ -39,27 +40,32 @@ export default function ClickSpark({
     sparkContainer.style.transform = 'translate(-50%, -50%)';
 
     // Create individual sparks
-    for (let i = 0; i < sparkCount; i++) {
+    const count = prefersReducedMotion ? Math.max(2, Math.floor(sparkCount / 2)) : sparkCount;
+    const size = prefersReducedMotion ? Math.max(4, Math.floor(sparkSize / 2)) : sparkSize;
+    const radius = prefersReducedMotion ? Math.max(8, Math.floor(sparkRadius / 2)) : sparkRadius;
+    const life = prefersReducedMotion ? Math.max(220, Math.floor(duration * 0.6)) : duration;
+
+    for (let i = 0; i < count; i++) {
       const spark = document.createElement('div');
       
       // Calculate angle for this spark
       const angle = (i / sparkCount) * Math.PI * 2;
       
       // Calculate end position
-      const endX = Math.cos(angle) * sparkRadius;
-      const endY = Math.sin(angle) * sparkRadius;
+      const endX = Math.cos(angle) * radius;
+      const endY = Math.sin(angle) * radius;
       
       // Set spark styles
       spark.style.position = 'absolute';
-      spark.style.width = `${sparkSize}px`;
-      spark.style.height = `${sparkSize}px`;
+      spark.style.width = `${size}px`;
+      spark.style.height = `${size}px`;
       spark.style.backgroundColor = sparkColor;
       spark.style.borderRadius = '50%';
       spark.style.left = '0';
       spark.style.top = '0';
       spark.style.transform = 'translate(-50%, -50%)';
       spark.style.opacity = '1';
-      spark.style.boxShadow = `0 0 ${sparkSize}px ${sparkColor}`;
+      spark.style.boxShadow = `0 0 ${size}px ${sparkColor}`;
       
       // Create animation
       const animation = spark.animate([
@@ -72,7 +78,7 @@ export default function ClickSpark({
           opacity: 0
         }
       ], {
-        duration: duration,
+        duration: life,
         easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         fill: 'forwards'
       });
@@ -90,8 +96,8 @@ export default function ClickSpark({
     // Remove container after all sparks are done
     setTimeout(() => {
       sparkContainer.remove();
-    }, duration + 100);
-  }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration]);
+    }, (prefersReducedMotion ? Math.max(220, Math.floor(duration * 0.6)) : duration) + 100);
+  }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, prefersReducedMotion]);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();

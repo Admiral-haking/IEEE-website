@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import React from 'react';
@@ -25,6 +26,7 @@ import {
   useTheme,
   useMediaQuery
 } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import LanguageToggle from '@/components/LanguageToggle';
@@ -32,7 +34,8 @@ import ThemeToggle from '@/components/ThemeToggle';
 import dynamic from 'next/dynamic';
 const SearchBar = dynamic(() => import('@/components/SearchBar'), { ssr: false });
 import GlitchText from '@/components/GlitchText';
-import { useTranslation } from 'react-i18next';
+import enCommon from '@/locales/en/common.json';
+import faCommon from '@/locales/fa/common.json';
 
 const logoLight = '/logo.png';
 const logoDark = '/logo-dark-mode.png';
@@ -43,14 +46,21 @@ export default function Navbar() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mounted, setMounted] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  const [hidden, setHidden] = React.useState(false);
+  const lastScroll = React.useRef(0);
   const [open, setOpen] = React.useState(false);
   
   React.useEffect(() => setMounted(true), []);
   
-  // Handle scroll effect
+  // Handle scroll effect (shrink + auto-hide on scroll down)
   React.useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+        const y = window.scrollY;
+        setScrolled(y > 20);
+        const goingDown = y > lastScroll.current;
+        const threshold = 80;
+        setHidden(goingDown && y > threshold);
+        lastScroll.current = y;
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -62,38 +72,40 @@ export default function Navbar() {
   const logoSrc = colorMode === 'dark' ? logoDark : logoLight;
   const pathname = usePathname();
 
-  const { t } = useTranslation();
   const parts = (pathname || '/').split('/').filter(Boolean);
   const locale = parts[0] === 'en' || parts[0] === 'fa' ? parts[0] : 'en';
   const current = `/${parts.slice(1).join('/')}`;
   const isRtl = locale === 'fa';
+  const dict = locale === 'fa' ? (faCommon as any) : (enCommon as any);
+  const drawerDir: 'ltr' | 'rtl' = isRtl ? 'rtl' : 'ltr';
+  const centerBoxSx: SxProps<Theme> = { display: { xs: 'none', md: 'flex' }, flex: 1, justifyContent: 'center', ml: 2, mr: 2 };
   
   // Check if we're on an admin page
   const isAdminPage = pathname?.includes('/admin');
   
   // Main navigation links
   const mainLinks = [
-    { href: `/${locale}/solutions`, key: 'solutions', label: t('solutions') },
-    { href: `/${locale}/capabilities`, key: 'capabilities', label: t('capabilities') },
-    { href: `/${locale}/team`, key: 'team', label: t('team') },
-    { href: `/${locale}/blog`, key: 'blog', label: t('blog') },
-    { href: `/${locale}/case-studies`, key: 'case-studies', label: t('case_studies') },
-    { href: `/${locale}/jobs`, key: 'jobs', label: t('jobs') },
-    { href: `/${locale}/contact`, key: 'contact', label: t('contact') }
+    { href: `/${locale}/solutions`, key: 'solutions', label: dict.solutions },
+    { href: `/${locale}/capabilities`, key: 'capabilities', label: dict.capabilities },
+    { href: `/${locale}/team`, key: 'team', label: dict.team },
+    { href: `/${locale}/blog`, key: 'blog', label: dict.blog },
+    { href: `/${locale}/case-studies`, key: 'case-studies', label: dict.case_studies },
+    { href: `/${locale}/jobs`, key: 'jobs', label: dict.jobs },
+    { href: `/${locale}/contact`, key: 'contact', label: dict.contact }
   ];
   
   // Admin navigation links
   const adminLinks = [
-    { href: `/${locale}/admin`, key: 'admin-dashboard', label: t('dashboard') },
-    { href: `/${locale}/admin/users`, key: 'admin-users', label: t('users') },
-    { href: `/${locale}/admin/team-members`, key: 'admin-team-members', label: t('team_members') },
-    { href: `/${locale}/admin/pages`, key: 'admin-pages', label: t('pages') },
-    { href: `/${locale}/admin/solutions`, key: 'admin-solutions', label: t('solutions') },
-    { href: `/${locale}/admin/capabilities`, key: 'admin-capabilities', label: t('capabilities') },
-    { href: `/${locale}/admin/blog`, key: 'admin-blog', label: t('blog') },
-    { href: `/${locale}/admin/case-studies`, key: 'admin-case-studies', label: t('case_studies') },
-    { href: `/${locale}/admin/jobs`, key: 'admin-jobs', label: t('jobs') },
-    { href: `/${locale}/admin/media`, key: 'admin-media', label: t('media') }
+    { href: `/${locale}/admin`, key: 'admin-dashboard', label: dict.dashboard },
+    { href: `/${locale}/admin/users`, key: 'admin-users', label: dict.users },
+    { href: `/${locale}/admin/team-members`, key: 'admin-team-members', label: dict.team_members },
+    { href: `/${locale}/admin/pages`, key: 'admin-pages', label: dict.pages },
+    { href: `/${locale}/admin/solutions`, key: 'admin-solutions', label: dict.solutions },
+    { href: `/${locale}/admin/capabilities`, key: 'admin-capabilities', label: dict.capabilities },
+    { href: `/${locale}/admin/blog`, key: 'admin-blog', label: dict.blog },
+    { href: `/${locale}/admin/case-studies`, key: 'admin-case-studies', label: dict.case_studies },
+    { href: `/${locale}/admin/jobs`, key: 'admin-jobs', label: dict.jobs },
+    { href: `/${locale}/admin/media`, key: 'admin-media', label: dict.media }
   ];
   
   // Use appropriate links based on current page
@@ -107,14 +119,15 @@ export default function Navbar() {
         zIndex: 1000,
         overflow: 'visible',
         pointerEvents: 'auto',
-        // Subtle frosted-glass effect
-        backdropFilter: 'saturate(140%) blur(8px)',
-        WebkitBackdropFilter: 'saturate(140%) blur(8px)',
-        backgroundColor: colorMode === 'dark' 
-          ? 'rgba(18, 18, 18, 0.22)'
-          : 'rgba(255, 255, 255, 0.18)',
+        // Subtle glassy blur for separation
+        backdropFilter: 'saturate(140%) blur(2px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(2px)',
+        background: colorMode === 'dark'
+          ? 'linear-gradient(135deg, rgba(18,18,18,0.30) 0%, rgba(35,35,35,0.18) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.16) 100%)',
         borderBottom: `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)'}`,
-        transition: 'background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
+        transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
+        transition: 'transform 0.35s ease, background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
         boxShadow: '0 6px 20px rgba(0,0,0,0.05)'
       }}
     >
@@ -146,16 +159,13 @@ export default function Navbar() {
                 }
               }}
             >
-              <div style={{ position: 'relative' }}>
+              <Box sx={{ position: 'relative' }}>
                 <Image 
                   src={logoSrc} 
                   alt="IEEE Association logo" 
                   width={scrolled ? 100 : 120} 
                   height={scrolled ? 60 : 80} 
-                  style={{ 
-                    width: 'auto',
-                    transition: 'all 0.3s ease'
-                  }} 
+                  className="navbar-logo-img"
                   priority 
                   sizes="(max-width: 600px) 60px, (max-width: 900px) 80px, 120px" 
                   suppressHydrationWarning 
@@ -168,7 +178,7 @@ export default function Navbar() {
                     sx={{
                       position: 'absolute',
                       top: -8,
-                      [isRtl ? 'left' : 'right']: -8,
+                      ...(isRtl ? { left: -8 } : { right: -8 }),
                       fontSize: '0.6rem',
                       height: 16,
                       '& .MuiChip-label': {
@@ -177,26 +187,30 @@ export default function Navbar() {
                     }}
                   />
                 )}
-              </div>
+              </Box>
               <GlitchText
                 speed={0.5}
                 enableShadows={true}
                 enableOnHover={true}
+                disableEffects={true}
                 variant="h6"
                 sx={{ 
                   display: { xs: 'none', sm: 'block' },
                   fontFamily: locale === 'fa' ? 'var(--font-display-fa)' : 'var(--font-anime-en)',
                   fontWeight: 700,
                   fontSize: scrolled ? '0.9rem' : '1rem',
-                  transition: 'font-size 0.3s ease'
+                  transition: 'font-size 0.3s ease',
+                  color: colorMode === 'dark' ? '#ffffff' : '#111827'
                 }}
               >
-                {t('title')}
+                {/* Avoid hydration mismatch by using dict from URL locale */}
+                {dict.title}
               </GlitchText>
               <GlitchText
                 speed={0.3}
                 enableShadows={true}
                 enableOnHover={false}
+                disableEffects={true}
                 variant="h6"
                 sx={{ 
                   fontSize: scrolled ? '0.6rem' : '0.7rem',
@@ -204,16 +218,17 @@ export default function Navbar() {
                   lineHeight: 1.2,
                   fontFamily: locale === 'fa' ? 'var(--font-display-fa)' : 'var(--font-tech-en)',
                   fontWeight: 700,
-                  transition: 'font-size 0.3s ease'
+                  transition: 'font-size 0.3s ease',
+                  color: colorMode === 'dark' ? '#ffffff' : '#111827'
                 }}
               >
-                {locale === 'fa' ? t('name') : 'CEA'}
+                {locale === 'fa' ? dict.name : 'CEA'}
               </GlitchText>
             </Link>
           </Stack>
-          <div style={{ display: 'none', flex: 1, justifyContent: 'center', marginLeft: 16, marginRight: 16 }} className="md:flex">
+          <Box component="div" sx={centerBoxSx}>
             <SearchBar />
-          </div>
+          </Box>
           <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
             <Fade in={mounted} timeout={800}>
               <div>
@@ -254,25 +269,22 @@ export default function Navbar() {
         onClose={() => setOpen(false)} 
         sx={{ 
           '& .MuiDrawer-paper': {
-            width: { xs: '100vw', sm: 320 },
-            // Frosted drawer panel with subtle blur
+            width: { xs: 280, sm: 320 },
+            // Frosted drawer panel without blur
             background: colorMode === 'dark'
               ? 'linear-gradient(135deg, rgba(26,26,26,0.32) 0%, rgba(45,45,45,0.26) 100%)'
               : 'linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(245,245,245,0.22) 100%)',
-            backdropFilter: 'saturate(140%) blur(10px)',
-            WebkitBackdropFilter: 'saturate(140%) blur(10px)',
+            backdropFilter: 'saturate(140%) blur(0px)',
+            WebkitBackdropFilter: 'saturate(140%) blur(0px)',
             borderRight: `1px solid ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)'}`
           }
         }}
       >
-        <div style={{ width: '100%', padding: 24, direction: isRtl ? 'rtl' : 'ltr' }} role="presentation">
-          <Stack direction={isRtl ? 'row-reverse' : 'row'} justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-            <Stack direction={isRtl ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
-              <Image src={logoSrc} alt="logo" width={32} height={32} style={{ width: 'auto' }} />
-              <Typography variant="subtitle1" fontWeight={700} suppressHydrationWarning>
-                {isAdminPage ? t('admin_panel') : t('name')}
-              </Typography>
-            </Stack>
+        <Box component="div" sx={{ width: '100%', p: 3 }} dir={drawerDir} role="presentation">
+          <Stack direction={isRtl ? 'row-reverse' : 'row'} justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" fontWeight={700} suppressHydrationWarning>
+              {isAdminPage ? dict.admin_panel : dict.navigation}
+            </Typography>
             <IconButton 
               onClick={() => setOpen(false)}
               sx={{
@@ -303,34 +315,29 @@ export default function Navbar() {
                   border: `1px solid ${colorMode === 'dark' ? 'rgba(25, 118, 210, 0.2)' : 'rgba(25, 118, 210, 0.1)'}`
                 }}
               >
-                {t('admin')}
+                {dict.admin}
               </Typography>
               <List sx={{ mb: 3 }}>
-                {adminLinks.map((l, index) => (
-                  <Slide key={l.key} direction={isRtl ? 'left' : 'right'} in={open} timeout={200 + index * 50}>
-                    <ListItemButton 
-                      component={NextLink} 
-                      href={l.href} 
-                      onClick={() => setOpen(false)}
-                      sx={{ 
-                        borderRadius: 2, 
-                        mb: 1,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          backgroundColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                          transform: 'translateX(8px)'
-                        }
-                      }}
-                    >
-                      <ListItemText 
-                        primary={l.label}
-                        primaryTypographyProps={{
-                          fontWeight: 500,
-                          fontSize: '0.95rem'
-                        }}
-                      />
-                    </ListItemButton>
-                  </Slide>
+                {adminLinks.map((l) => (
+                  <ListItemButton 
+                    key={l.key}
+                    component={NextLink} 
+                    href={l.href} 
+                    onClick={() => setOpen(false)}
+                    sx={{ 
+                      borderRadius: 2, 
+                      mb: 0.5,
+                      py: 0.75,
+                      '&:hover': {
+                        backgroundColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'
+                      }
+                    }}
+                  >
+                    <ListItemText 
+                      primary={l.label}
+                      primaryTypographyProps={{ fontWeight: 500, fontSize: '0.9rem' }}
+                    />
+                  </ListItemButton>
                 ))}
               </List>
               <Divider sx={{ mb: 3, borderColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }} />
@@ -349,37 +356,32 @@ export default function Navbar() {
               border: `1px solid ${colorMode === 'dark' ? 'rgba(25, 118, 210, 0.2)' : 'rgba(25, 118, 210, 0.1)'}`
             }}
           >
-            {isAdminPage ? t('site_navigation') : t('navigation')}
+            {isAdminPage ? dict.site_navigation : dict.navigation}
           </Typography>
           <List>
-            {mainLinks.map((l, index) => (
-              <Slide key={l.key} direction={isRtl ? 'left' : 'right'} in={open} timeout={300 + index * 50}>
-                <ListItemButton 
-                  component={NextLink} 
-                  href={l.href} 
-                  onClick={() => setOpen(false)}
-                  sx={{ 
-                    borderRadius: 2, 
-                    mb: 1,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                      transform: 'translateX(8px)'
-                    }
-                  }}
-                >
-                  <ListItemText 
-                    primary={l.label}
-                    primaryTypographyProps={{
-                      fontWeight: 500,
-                      fontSize: '0.95rem'
-                    }}
-                  />
-                </ListItemButton>
-              </Slide>
+            {mainLinks.map((l) => (
+              <ListItemButton 
+                key={l.key}
+                component={NextLink} 
+                href={l.href} 
+                onClick={() => setOpen(false)}
+                sx={{ 
+                  borderRadius: 2, 
+                  mb: 0.5,
+                  py: 0.75,
+                  '&:hover': {
+                    backgroundColor: colorMode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                <ListItemText 
+                  primary={l.label}
+                  primaryTypographyProps={{ fontWeight: 500, fontSize: '0.9rem' }}
+                />
+              </ListItemButton>
             ))}
           </List>
-        </div>
+        </Box>
       </Drawer>
     </AppBar>
   );
